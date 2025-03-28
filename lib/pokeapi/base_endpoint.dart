@@ -12,7 +12,7 @@ mixin ResourceEndpointMixin<T> {
         _resource = 'pokemon';
         break;
       default:
-        throw ('Endpoint not supported');
+        throw UnimplementedError('Endpoint not implemented: ${T.toString()}');
     }
 
     return _resource!;
