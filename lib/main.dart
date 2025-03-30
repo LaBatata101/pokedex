@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:pokedex/pokeapi/pokeapi.dart';
+import 'package:pokedex/viewmodels/home_view_model.dart';
+import 'package:pokedex/views/pokedex_home.dart';
+import 'package:provider/provider.dart';
 
 void main() async {
   runApp(const MyApp());
@@ -9,105 +13,34 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Pokédex',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      ),
-      home: const PokedexHome(title: 'Flutter Demo Home Page'),
-    );
-  }
-}
-
-class PokedexHome extends StatefulWidget {
-  const PokedexHome({super.key, required this.title});
-
-  final String title;
-
-  @override
-  State<PokedexHome> createState() => _PokedexHomeState();
-}
-
-class _PokedexHomeState extends State<PokedexHome> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: GestureDetector(
-        onTap: () {
-          FocusScope.of(context).unfocus();
-        },
-        child: Column(
-          spacing: 10,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(15, 30, 15, 0),
-              child: TextField(
-                decoration: InputDecoration(
-                  hintText: 'Search...',
-                  contentPadding: EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 10,
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(50),
-                    borderSide: BorderSide(width: 2, color: Colors.green),
-                  ),
-                ),
+    return FutureBuilder<PokeAPI>(
+      future: PokeAPI.create(),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          final api = snapshot.data!;
+          return ChangeNotifierProvider(
+            create: (_) => HomeViewModel(api)..init(),
+            child: MaterialApp(
+              title: 'Pokédex',
+              theme: ThemeData(
+                colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+              ),
+              home: const PokedexHome(title: 'Pokédex Home'),
+            ),
+          );
+        } else if (snapshot.hasError) {
+          return MaterialApp(
+            home: Scaffold(
+              body: Center(
+                child: Text('Error initializing API: ${snapshot.error}'),
               ),
             ),
-            Expanded(
-              child: ListView.separated(
-                itemCount: 40,
-                separatorBuilder:
-                    (context, index) => const SizedBox(height: 10),
-                itemBuilder: (context, index) {
-                  List<Widget> items = List.generate(3, (i) {
-                    return Text(
-                      'Item ${i + index}',
-                      style: TextStyle(fontSize: 20),
-                    );
-                  });
-                  List<Widget> rowChildren = [];
-                  for (final item in items) {
-                    rowChildren.add(
-                      InkWell(
-                        onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => PokemonInfo(index: index),
-                            ),
-                          );
-                        },
-                        child: item,
-                      ),
-                    );
-                  }
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: rowChildren,
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class PokemonInfo extends StatelessWidget {
-  final int index;
-  const PokemonInfo({super.key, required this.index});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Details")),
-      body: Center(child: Text("Details from Pokemon $index")),
+          );
+        }
+        return MaterialApp(
+          home: Scaffold(body: Center(child: CircularProgressIndicator())),
+        );
+      },
     );
   }
 }
