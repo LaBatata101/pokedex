@@ -50,6 +50,7 @@ class _PokedexHomeState extends State<PokedexHome> {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(15, 30, 15, 10),
                   child: TextField(
+                    textInputAction: TextInputAction.search,
                     onChanged: viewModel.onSearchChanged,
                     decoration: InputDecoration(
                       hintText: 'Search...',
