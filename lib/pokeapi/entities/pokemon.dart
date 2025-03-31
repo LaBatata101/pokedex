@@ -250,12 +250,12 @@ class PokemonSprites {
 
 class PokemonCries {
   /// The latest depiction of this Pokémon's cry.
-  final String latest;
+  final String? latest;
 
   /// The legacy depiction of this Pokémon's cry.
-  final String legacy;
+  final String? legacy;
 
-  const PokemonCries({required this.latest, required this.legacy});
+  const PokemonCries({this.latest, this.legacy});
 
   @override
   String toString() {
