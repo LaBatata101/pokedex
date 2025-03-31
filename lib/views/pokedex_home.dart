@@ -3,6 +3,7 @@ import 'package:pokedex/utils/logging.dart';
 import 'package:pokedex/viewmodels/home_view_model.dart';
 import 'package:pokedex/views/pokemon_info.dart';
 import 'package:provider/provider.dart';
+import 'package:pokedex/utils/string.dart';
 
 class PokedexHome extends StatefulWidget {
   const PokedexHome({super.key, required this.title});
@@ -164,11 +165,5 @@ class _PokedexHomeState extends State<PokedexHome> {
         ),
       ),
     );
-  }
-}
-
-extension StringExtension on String {
-  String capitalize() {
-    return isEmpty ? this : this[0].toUpperCase() + substring(1);
   }
 }
