@@ -5,6 +5,7 @@ import 'package:pokedex/pokeapi/cache.dart';
 import 'package:pokedex/pokeapi/converter_factory.dart';
 import 'package:pokedex/pokeapi/endpoint.dart';
 import 'package:pokedex/pokeapi/http_status.dart';
+import 'package:pokedex/utils/logging.dart';
 
 class PokeAPI extends PokeAPIEndpoints {
   PokeAPI._(super.client);
@@ -36,11 +37,13 @@ class PokeAPIClient {
 
   Future<T> get<T>(String url) async {
     if (await _cache.contains(url)) {
+      logger.d("Cache HIT for URL: $url");
       final json = await _cache.get(url);
       return _converterFactory.get<T>().fromJson(jsonDecode(json!) as Json)
           as T;
     }
 
+    logger.d("Cache MISS for URL: $url");
     final response = await _client.get(Uri.parse(url));
     if (response.statusCode != 200) {
       throw HttpStatusException(response.statusCode, url);

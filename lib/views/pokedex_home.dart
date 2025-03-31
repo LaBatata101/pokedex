@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pokedex/utils/logging.dart';
 import 'package:pokedex/viewmodels/home_view_model.dart';
 import 'package:pokedex/views/pokemon_info.dart';
 import 'package:provider/provider.dart';
@@ -134,7 +135,12 @@ class _PokedexHomeState extends State<PokedexHome> {
                                   ),
                                 );
                               } else if (snapshot.hasError) {
-                                return const Center(child: Text('Error'));
+                                logger.e(
+                                  "Error while loading pokemon info ${resource.url}",
+                                  error: snapshot.error,
+                                  stackTrace: snapshot.stackTrace,
+                                );
+                                return const Center(child: Icon(Icons.error));
                               }
                               return const Center(
                                 child: CircularProgressIndicator(),
