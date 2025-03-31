@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:pokedex/utils/logging.dart';
 import 'package:pokedex/viewmodels/home_view_model.dart';
@@ -49,7 +50,7 @@ class _PokedexHomeState extends State<PokedexHome> {
               spacing: 10,
               children: [
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(15, 30, 15, 10),
+                  padding: const EdgeInsets.fromLTRB(15, 30, 15, 0),
                   child: TextField(
                     textInputAction: TextInputAction.search,
                     onChanged: viewModel.onSearchChanged,
@@ -118,10 +119,19 @@ class _PokedexHomeState extends State<PokedexHome> {
                                           MainAxisAlignment.center,
                                       children: [
                                         Expanded(
-                                          child: Image.network(
-                                            pokemon.sprites.frontDefault ?? '',
-                                            errorBuilder:
-                                                (context, error, stackTrace) =>
+                                          child: CachedNetworkImage(
+                                            imageUrl:
+                                                pokemon.sprites.frontDefault ??
+                                                '',
+                                            progressIndicatorBuilder:
+                                                (_, _, progressDownload) =>
+                                                    CircularProgressIndicator(
+                                                      value:
+                                                          progressDownload
+                                                              .progress,
+                                                    ),
+                                            errorWidget:
+                                                (_, _, _) =>
                                                     const Icon(Icons.error),
                                           ),
                                         ),
