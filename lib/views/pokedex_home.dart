@@ -1,8 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:pokedex/pokeapi/entities/pokemon.dart';
 import 'package:pokedex/utils/logging.dart';
 import 'package:pokedex/viewmodels/home_view_model.dart';
-import 'package:pokedex/views/pokemon_info.dart';
+import 'package:pokedex/views/pokemon_details.dart';
 import 'package:provider/provider.dart';
 import 'package:pokedex/utils/string.dart';
 
@@ -36,6 +37,52 @@ class _PokedexHomeState extends State<PokedexHome> {
     super.dispose();
   }
 
+  Widget _createSearchField(HomeViewModel viewModel) {
+    return TextField(
+      textInputAction: TextInputAction.search,
+      onChanged: viewModel.onSearchChanged,
+      decoration: InputDecoration(
+        hintText: 'Search...',
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 20,
+          vertical: 10,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(50),
+          borderSide: const BorderSide(width: 2, color: Colors.green),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderSide: const BorderSide(width: 2, color: Colors.green),
+          borderRadius: BorderRadius.circular(50),
+        ),
+      ),
+    );
+  }
+
+  Widget _createPokemonCard(Pokemon pokemonData) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Expanded(
+          child: CachedNetworkImage(
+            imageUrl: pokemonData.sprites.frontDefault ?? '',
+            progressIndicatorBuilder:
+                (_, _, progressDownload) =>
+                    CircularProgressIndicator(value: progressDownload.progress),
+            errorWidget: (_, _, _) => const Icon(Icons.error),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(
+            pokemonData.name.capitalize(),
+            textAlign: TextAlign.center,
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -51,31 +98,7 @@ class _PokedexHomeState extends State<PokedexHome> {
               children: [
                 Padding(
                   padding: const EdgeInsets.fromLTRB(15, 30, 15, 0),
-                  child: TextField(
-                    textInputAction: TextInputAction.search,
-                    onChanged: viewModel.onSearchChanged,
-                    decoration: InputDecoration(
-                      hintText: 'Search...',
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 10,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(50),
-                        borderSide: const BorderSide(
-                          width: 2,
-                          color: Colors.green,
-                        ),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: const BorderSide(
-                          width: 2,
-                          color: Colors.green,
-                        ),
-                        borderRadius: BorderRadius.circular(50),
-                      ),
-                    ),
-                  ),
+                  child: _createSearchField(viewModel),
                 ),
                 Expanded(
                   child: ListView(
@@ -100,7 +123,7 @@ class _PokedexHomeState extends State<PokedexHome> {
                             ),
                             builder: (context, snapshot) {
                               if (snapshot.hasData) {
-                                final pokemon = snapshot.data!;
+                                final pokemonData = snapshot.data!;
                                 return Card(
                                   elevation: 2,
                                   child: InkWell(
@@ -108,42 +131,13 @@ class _PokedexHomeState extends State<PokedexHome> {
                                       Navigator.of(context).push(
                                         MaterialPageRoute(
                                           builder:
-                                              (context) => PokemonInfo(
-                                                index: pokemon.id,
+                                              (context) => PokemonDetails(
+                                                pokemon: pokemonData,
                                               ),
                                         ),
                                       );
                                     },
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Expanded(
-                                          child: CachedNetworkImage(
-                                            imageUrl:
-                                                pokemon.sprites.frontDefault ??
-                                                '',
-                                            progressIndicatorBuilder:
-                                                (_, _, progressDownload) =>
-                                                    CircularProgressIndicator(
-                                                      value:
-                                                          progressDownload
-                                                              .progress,
-                                                    ),
-                                            errorWidget:
-                                                (_, _, _) =>
-                                                    const Icon(Icons.error),
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Text(
-                                            pokemon.name.capitalize(),
-                                            textAlign: TextAlign.center,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
+                                    child: _createPokemonCard(pokemonData),
                                   ),
                                 );
                               } else if (snapshot.hasError) {
