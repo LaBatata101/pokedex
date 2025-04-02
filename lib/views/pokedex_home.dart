@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:pokedex/pokeapi/entities/pokemon.dart';
 import 'package:pokedex/utils/logging.dart';
 import 'package:pokedex/viewmodels/home_view_model.dart';
@@ -60,23 +61,42 @@ class _PokedexHomeState extends State<PokedexHome> {
   }
 
   Widget _createPokemonCard(Pokemon pokemonData) {
+    final imageUrl =
+        // pokemonData.sprites.other.dreamWorld.frontDefault ??
+        pokemonData.sprites.frontDefault ?? '';
+    Widget imageWidget;
+    if (imageUrl.endsWith('.svg')) {
+      imageWidget = SvgPicture.network(
+        imageUrl,
+        width: 100,
+        height: 100,
+        placeholderBuilder: (_) => CircularProgressIndicator(),
+        errorBuilder:
+            (_, _, _) =>
+                const PokemonErrorCard(message: 'Failed to fetch image!'),
+      );
+    } else {
+      imageWidget = CachedNetworkImage(
+        imageUrl: imageUrl,
+        progressIndicatorBuilder:
+            (_, _, progressDownload) =>
+                CircularProgressIndicator(value: progressDownload.progress),
+        errorWidget:
+            (_, _, _) =>
+                const PokemonErrorCard(message: 'Failed to fetch image!'),
+      );
+    }
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Expanded(
-          child: CachedNetworkImage(
-            imageUrl: pokemonData.sprites.frontDefault ?? '',
-            progressIndicatorBuilder:
-                (_, _, progressDownload) =>
-                    CircularProgressIndicator(value: progressDownload.progress),
-            errorWidget: (_, _, _) => const Icon(Icons.error),
-          ),
-        ),
+        Expanded(child: imageWidget),
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: Text(
             pokemonData.name.capitalize(),
             textAlign: TextAlign.center,
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
           ),
         ),
       ],
@@ -146,7 +166,7 @@ class _PokedexHomeState extends State<PokedexHome> {
                                   error: snapshot.error,
                                   stackTrace: snapshot.stackTrace,
                                 );
-                                return const Center(child: Icon(Icons.error));
+                                return const PokemonErrorCard();
                               }
                               return const Center(
                                 child: CircularProgressIndicator(),
@@ -168,6 +188,34 @@ class _PokedexHomeState extends State<PokedexHome> {
           },
         ),
       ),
+    );
+  }
+}
+
+class PokemonErrorCard extends StatelessWidget {
+  final String message;
+  const PokemonErrorCard({
+    super.key,
+    this.message = "Failed to fetch pokemon info!",
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(Icons.cancel, color: Colors.red),
+        SizedBox(height: 15),
+        Text(
+          message,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.bold,
+            color: Colors.red,
+          ),
+        ),
+      ],
     );
   }
 }
