@@ -223,7 +223,115 @@ class PokemonSprites {
   /// The shiny female depiction of this Pokémon from the back in battle.
   final String? backShinyFemale;
 
+  final Other other;
+
   const PokemonSprites({
+    this.frontDefault,
+    this.frontShiny,
+    this.frontFemale,
+    this.frontShinyFemale,
+    this.backDefault,
+    this.backShiny,
+    this.backFemale,
+    this.backShinyFemale,
+    required this.other,
+  });
+
+  @override
+  String toString() {
+    return '''PokemonSprites(
+    frontDefault: $frontDefault,
+    frontShiny: $frontShiny,
+    frontFemale: $frontFemale,
+    frontShinyFemale: $frontShinyFemale,
+    backDefault: $backDefault,
+    backShiny: $backShiny,
+    backFemale: $backFemale,
+    backShinyFemale: $backShinyFemale,
+    other: $other)''';
+  }
+}
+
+class Other {
+  final Home home;
+  final DreamWorld dreamWorld;
+  final Showdown showdown;
+
+  const Other({
+    required this.home,
+    required this.dreamWorld,
+    required this.showdown,
+  });
+  @override
+  String toString() {
+    return '''Other(
+    home: $home,
+    dreamWorld: $dreamWorld,
+    showdown: $showdown)''';
+  }
+}
+
+class DreamWorld {
+  final String? frontDefault;
+  final String? frontFemale;
+
+  const DreamWorld({this.frontDefault, this.frontFemale});
+  @override
+  String toString() {
+    return '''DreamWorld(
+    frontDefault: $frontDefault,
+    frontFemale: $frontFemale)''';
+  }
+}
+
+class Home {
+  final String? frontDefault;
+  final String? frontShiny;
+  final String? frontFemale;
+  final String? frontShinyFemale;
+
+  const Home({
+    this.frontDefault,
+    this.frontShiny,
+    this.frontFemale,
+    this.frontShinyFemale,
+  });
+
+  @override
+  String toString() {
+    return '''Home(
+    frontDefault: $frontDefault,
+    frontShiny: $frontShiny,
+    frontFemale: $frontFemale,
+    frontShinyFemale: $frontShinyFemale)''';
+  }
+}
+
+class OfficialArtwork {
+  final String? frontDefault;
+  final String? frontShiny;
+
+  const OfficialArtwork({this.frontDefault, this.frontShiny});
+
+  @override
+  String toString() {
+    return '''OfficialArtwork(
+    frontDefault: $frontDefault,
+    frontFemale: $frontShiny)''';
+  }
+}
+
+class Showdown {
+  final String? frontDefault;
+  final String? frontShiny;
+  final String? frontFemale;
+  final String? frontShinyFemale;
+  final String? backDefault;
+  final String? backShiny;
+  final String? backFemale;
+  final String? backShinyFemale;
+
+  const Showdown({
     this.frontDefault,
     this.frontShiny,
     this.frontFemale,
@@ -236,7 +344,7 @@ class PokemonSprites {
 
   @override
   String toString() {
-    return '''PokemonSprites(
+    return '''Showdown(
     frontDefault: $frontDefault,
     frontShiny: $frontShiny,
     frontFemale: $frontFemale,

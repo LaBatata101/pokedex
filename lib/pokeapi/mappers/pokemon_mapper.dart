@@ -316,10 +316,64 @@ class PokemonSpritesMapper {
       backShiny: map['back_shiny'],
       backFemale: map['back_female'],
       backShinyFemale: map['back_shiny_female'],
+      other: OtherMapper.fromMap(map['other']),
     );
   }
 
   static String toJson(PokemonSprites sprites) => json.encode(toMap(sprites));
   static PokemonSprites fromJson(String content) =>
       fromMap(json.decode(content));
+}
+
+class OtherMapper {
+  static Other fromMap(Map<String, dynamic> map) {
+    return Other(
+      home: HomeMapper.fromMap(map['home']),
+      dreamWorld: DreamWorldMapper.fromMap(map['dream_world']),
+      showdown: ShowdownMapper.fromMap(map['showdown']),
+    );
+  }
+
+  static Other fromJson(String content) => fromMap(json.decode(content));
+}
+
+class HomeMapper {
+  static Home fromMap(Map<String, dynamic> map) {
+    return Home(
+      frontDefault: map['front_default'],
+      frontShiny: map['front_shiny'],
+      frontFemale: map['front_female'],
+      frontShinyFemale: map['front_shiny_female'],
+    );
+  }
+
+  static Home fromJson(String content) => fromMap(json.decode(content));
+}
+
+class DreamWorldMapper {
+  static DreamWorld fromMap(Map<String, dynamic> map) {
+    return DreamWorld(
+      frontFemale: map['front_female'],
+      frontDefault: map['front_default'],
+    );
+  }
+
+  static DreamWorld fromJson(String content) => fromMap(json.decode(content));
+}
+
+class ShowdownMapper {
+  static Showdown fromMap(Map<String, dynamic> map) {
+    return Showdown(
+      frontDefault: map['front_default'],
+      frontShiny: map['front_shiny'],
+      frontFemale: map['front_female'],
+      frontShinyFemale: map['front_shiny_female'],
+      backDefault: map['back_default'],
+      backShiny: map['back_shiny'],
+      backFemale: map['back_female'],
+      backShinyFemale: map['back_shiny_female'],
+    );
+  }
+
+  static Showdown fromJson(String content) => fromMap(json.decode(content));
 }
