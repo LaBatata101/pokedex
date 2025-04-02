@@ -55,8 +55,10 @@ class NoShenanigansPrinter extends LogPrinter {
     String output = "$time [$logLevel] ${stringifyMessage(event.message)} ";
     if (event.error != null) {
       final stackTraceStr = formatStackTrace(event.stackTrace, null);
+      output += '\nERROR MESSAGE: ';
       output += event.error!.toString();
       if (stackTraceStr != null) {
+        output += '\nSTACKTRACE:';
         output += '\n$stackTraceStr';
       }
     }
