@@ -144,11 +144,21 @@ class _HeaderWidgetState extends State<HeaderWidget> {
                         ),
                         decoration: BoxDecoration(
                           color: typeColors[type.type.name] ?? Colors.grey,
-                          borderRadius: BorderRadius.circular(8.0),
+                          borderRadius: BorderRadius.circular(12.0),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black,
+                              blurRadius: 2,
+                              offset: const Offset(0, 1),
+                            ),
+                          ],
                         ),
                         child: Text(
                           type.type.name.capitalize(),
-                          style: const TextStyle(color: Colors.white),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     )
