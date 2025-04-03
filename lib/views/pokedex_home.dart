@@ -70,7 +70,7 @@ class _PokedexHomeState extends State<PokedexHome> {
         imageUrl,
         width: 100,
         height: 100,
-        placeholderBuilder: (_) => CircularProgressIndicator(),
+        placeholderBuilder: (_) => Center(child: CircularProgressIndicator()),
         errorBuilder:
             (_, _, _) =>
                 const PokemonErrorCard(message: 'Failed to fetch image!'),
@@ -79,8 +79,11 @@ class _PokedexHomeState extends State<PokedexHome> {
       imageWidget = CachedNetworkImage(
         imageUrl: imageUrl,
         progressIndicatorBuilder:
-            (_, _, progressDownload) =>
-                CircularProgressIndicator(value: progressDownload.progress),
+            (_, _, progressDownload) => Center(
+              child: CircularProgressIndicator(
+                value: progressDownload.progress,
+              ),
+            ),
         errorWidget:
             (_, _, _) =>
                 const PokemonErrorCard(message: 'Failed to fetch image!'),
@@ -203,9 +206,9 @@ class PokemonErrorCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
+      spacing: 15,
       children: [
         Icon(Icons.cancel, color: Colors.red),
-        SizedBox(height: 15),
         Text(
           message,
           textAlign: TextAlign.center,

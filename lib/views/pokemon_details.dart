@@ -92,10 +92,15 @@ class _HeaderWidgetState extends State<HeaderWidget> {
                 imageUrl: spriteUrls[index],
                 fit: BoxFit.contain,
                 progressIndicatorBuilder:
-                    (_, _, progressDownload) => CircularProgressIndicator(
-                      value: progressDownload.progress,
+                    (_, _, progressDownload) => Center(
+                      child: CircularProgressIndicator(
+                        value: progressDownload.progress,
+                      ),
                     ),
-                errorWidget: (_, _, _) => const Icon(Icons.error),
+                errorWidget:
+                    (_, _, _) => const Center(
+                      child: Icon(Icons.error, size: 64, color: Colors.red),
+                    ),
               );
             },
           ),
