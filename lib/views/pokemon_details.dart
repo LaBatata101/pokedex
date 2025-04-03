@@ -76,16 +76,14 @@ class HeaderWidget extends StatefulWidget {
 class _HeaderWidgetState extends State<HeaderWidget> {
   late List<String> spriteUrls;
   int currentPage = 0;
-  final PageController _pageController = PageController();
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         SizedBox(
-          height: 200,
+          height: 300,
           child: PageView.builder(
-            controller: _pageController,
             itemCount: spriteUrls.length,
             itemBuilder: (context, index) {
               return CachedNetworkImage(
@@ -103,6 +101,11 @@ class _HeaderWidgetState extends State<HeaderWidget> {
                     ),
               );
             },
+            onPageChanged: (index) {
+              setState(() {
+                currentPage = index;
+              });
+            },
           ),
         ),
         Padding(
@@ -116,7 +119,11 @@ class _HeaderWidgetState extends State<HeaderWidget> {
                 height: currentPage == index ? 12.0 : 8.0,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: currentPage == index ? Colors.blue : Colors.grey,
+                  color:
+                      currentPage == index
+                          ? (typeColors[widget.pokemon.types.first.type.name] ??
+                              Colors.blue)
+                          : Colors.grey,
                 ),
               );
             }),
@@ -139,8 +146,8 @@ class _HeaderWidgetState extends State<HeaderWidget> {
                     .map(
                       (type) => Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 8.0,
-                          vertical: 7.0,
+                          horizontal: 12.0,
+                          vertical: 6.0,
                         ),
                         decoration: BoxDecoration(
                           color: typeColors[type.type.name] ?? Colors.grey,
@@ -170,12 +177,6 @@ class _HeaderWidgetState extends State<HeaderWidget> {
   }
 
   @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
-  }
-
-  @override
   void initState() {
     super.initState();
     spriteUrls = [
@@ -188,12 +189,6 @@ class _HeaderWidgetState extends State<HeaderWidget> {
       if (widget.pokemon.sprites.backShiny != null)
         widget.pokemon.sprites.backShiny!,
     ];
-
-    _pageController.addListener(() {
-      setState(() {
-        currentPage = _pageController.page?.round() ?? 0;
-      });
-    });
   }
 }
 
