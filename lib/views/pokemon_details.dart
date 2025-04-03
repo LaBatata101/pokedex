@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:pokedex/custom/sparkling_widget.dart';
 import 'package:pokedex/pokeapi/entities/pokemon.dart';
 import 'package:pokedex/utils/string.dart';
 
@@ -77,6 +78,10 @@ class _HeaderWidgetState extends State<HeaderWidget> {
   late List<String> spriteUrls;
   int currentPage = 0;
 
+  bool _isShinySprite(String url) {
+    return url.contains("shiny");
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -86,7 +91,9 @@ class _HeaderWidgetState extends State<HeaderWidget> {
           child: PageView.builder(
             itemCount: spriteUrls.length,
             itemBuilder: (context, index) {
-              return CachedNetworkImage(
+              final imageWidget = CachedNetworkImage(
+                width: 256,
+                height: 256,
                 imageUrl: spriteUrls[index],
                 fit: BoxFit.contain,
                 progressIndicatorBuilder:
@@ -99,6 +106,51 @@ class _HeaderWidgetState extends State<HeaderWidget> {
                     (_, _, _) => const Center(
                       child: Icon(Icons.error, size: 64, color: Colors.red),
                     ),
+              );
+              return Stack(
+                alignment: AlignmentDirectional.center,
+                children: [
+                  _isShinySprite(spriteUrls[index])
+                      ? ShinySparkleEffect(child: imageWidget)
+                      : imageWidget,
+                  if (_isShinySprite(spriteUrls[index]))
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.amber.withValues(alpha: 0.8),
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Colors.black26,
+                              blurRadius: 4,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.star, color: Colors.white, size: 16),
+                            SizedBox(width: 4),
+                            Text(
+                              'Shiny',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                ],
               );
             },
             onPageChanged: (index) {
