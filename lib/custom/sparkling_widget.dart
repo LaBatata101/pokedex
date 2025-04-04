@@ -71,6 +71,7 @@ class _ShinySparkleEffectState extends State<ShinySparkleEffect>
   @override
   Widget build(BuildContext context) {
     return Stack(
+      alignment: AlignmentDirectional.center,
       children: [
         widget.child,
         SizedBox(
