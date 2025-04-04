@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:pokedex/pokeapi/entities/common.dart';
 import 'package:pokedex/pokeapi/entities/pokemon.dart';
 import 'package:pokedex/utils/logging.dart';
 import 'package:pokedex/viewmodels/home_view_model.dart';
@@ -19,6 +20,9 @@ class PokedexHome extends StatefulWidget {
 
 class _PokedexHomeState extends State<PokedexHome> {
   final ScrollController _scrollController = ScrollController();
+  final TextEditingController _searchController = TextEditingController();
+  bool _isLoadingMore = false;
+  final ValueNotifier<bool> _showBackToTopButton = ValueNotifier<bool>(false);
 
   @override
   void initState() {
@@ -26,8 +30,16 @@ class _PokedexHomeState extends State<PokedexHome> {
 
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
-          _scrollController.position.maxScrollExtent - 100) {
-        context.read<HomeViewModel>().loadMore();
+              _scrollController.position.maxScrollExtent - 200 &&
+          !_isLoadingMore) {
+        _isLoadingMore = true;
+        context.read<HomeViewModel>().loadMore().then((_) {
+          _isLoadingMore = false;
+        });
+      }
+      final shouldShowButton = _scrollController.position.pixels > 200;
+      if (_showBackToTopButton.value != shouldShowButton) {
+        _showBackToTopButton.value = shouldShowButton;
       }
     });
   }
@@ -35,160 +47,445 @@ class _PokedexHomeState extends State<PokedexHome> {
   @override
   void dispose() {
     _scrollController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
-  Widget _createSearchField(HomeViewModel viewModel) {
-    return TextField(
-      textInputAction: TextInputAction.search,
-      onChanged: viewModel.onSearchChanged,
-      decoration: InputDecoration(
-        hintText: 'Search...',
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 20,
-          vertical: 10,
-        ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(50),
-          borderSide: const BorderSide(width: 2, color: Colors.green),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderSide: const BorderSide(width: 2, color: Colors.green),
-          borderRadius: BorderRadius.circular(50),
+  Widget _buildSearchField(HomeViewModel viewModel) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withValues(alpha: 0.2),
+            spreadRadius: 1,
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: TextField(
+        controller: _searchController,
+        textInputAction: TextInputAction.search,
+        onChanged: viewModel.onSearchChanged,
+        style: const TextStyle(fontSize: 16),
+        decoration: InputDecoration(
+          hintText: 'Search Pokémon...',
+          prefixIcon: const Icon(Icons.search, color: Colors.red),
+          suffixIcon:
+              _searchController.text.isNotEmpty
+                  ? IconButton(
+                    icon: const Icon(Icons.clear, color: Colors.grey),
+                    onPressed: () {
+                      _searchController.clear();
+                      viewModel.onSearchChanged('');
+                      FocusScope.of(context).unfocus();
+                    },
+                  )
+                  : null,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 15,
+          ),
+          border: InputBorder.none,
         ),
       ),
     );
   }
 
-  Widget _createPokemonCard(Pokemon pokemonData) {
+  Color _getTypeColor(String type) {
+    return typeColors[type.toLowerCase()] ?? Colors.grey;
+  }
+
+  Widget _buildPokemonCard(Pokemon pokemon) {
+    final primaryType =
+        pokemon.types.isNotEmpty ? pokemon.types[0].type.name : 'normal';
+    final cardColor = _getTypeColor(primaryType).withValues(alpha: 0.2);
     final imageUrl =
-        // pokemonData.sprites.other.dreamWorld.frontDefault ??
-        pokemonData.sprites.frontDefault ?? '';
-    Widget imageWidget;
-    if (imageUrl.endsWith('.svg')) {
-      imageWidget = SvgPicture.network(
-        imageUrl,
-        width: 100,
-        height: 100,
-        placeholderBuilder: (_) => Center(child: CircularProgressIndicator()),
-        errorBuilder:
-            (_, _, _) =>
-                const PokemonErrorCard(message: 'Failed to fetch image!'),
-      );
-    } else {
-      imageWidget = CachedNetworkImage(
-        imageUrl: imageUrl,
-        progressIndicatorBuilder:
-            (_, _, progressDownload) => Center(
-              child: CircularProgressIndicator(
-                value: progressDownload.progress,
+        // pokemon.sprites.other.home.frontDefault ??
+        pokemon.sprites.frontDefault ?? '';
+
+    return Hero(
+      tag: 'pokemon-${pokemon.id}',
+      child: Material(
+        color: Colors.transparent,
+        child: Card(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          elevation: 4,
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [cardColor, Colors.white],
               ),
             ),
-        errorWidget:
-            (_, _, _) =>
-                const PokemonErrorCard(message: 'Failed to fetch image!'),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(16),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => PokemonDetails(pokemon: pokemon),
+                  ),
+                );
+              },
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // ID badge
+                  Align(
+                    alignment: Alignment.topRight,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.1),
+                        borderRadius: const BorderRadius.only(
+                          topRight: Radius.circular(16),
+                          bottomLeft: Radius.circular(8),
+                        ),
+                      ),
+                      child: Text(
+                        '#${pokemon.id.toString().padLeft(3, '0')}',
+                        style: const TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black54,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // Pokemon image
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: _buildPokemonImage(imageUrl),
+                    ),
+                  ),
+
+                  // Pokemon name and types
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.8),
+                      borderRadius: const BorderRadius.only(
+                        bottomLeft: Radius.circular(16),
+                        bottomRight: Radius.circular(16),
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          pokemon.name.capitalize(),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          children:
+                              pokemon.types
+                                  .take(2)
+                                  .map((type) => _buildTypeChip(type.type.name))
+                                  .toList(),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTypeChip(String type) {
+    return Container(
+      margin: const EdgeInsets.only(right: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: _getTypeColor(type),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Text(
+        type.capitalize(),
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 10,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPokemonImage(String imageUrl) {
+    if (imageUrl.isEmpty) {
+      return const Center(
+        child: Icon(Icons.catching_pokemon, size: 50, color: Colors.black26),
       );
     }
 
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Expanded(child: imageWidget),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text(
-            pokemonData.name.capitalize(),
-            textAlign: TextAlign.center,
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+    if (imageUrl.endsWith('.svg')) {
+      return SvgPicture.network(
+        imageUrl,
+        placeholderBuilder:
+            (_) =>
+                const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+        errorBuilder:
+            (_, __, ___) => const PokemonErrorCard(
+              message: 'Image not available',
+              compact: true,
+            ),
+      );
+    } else {
+      return CachedNetworkImage(
+        imageUrl: imageUrl,
+        fit: BoxFit.contain,
+        placeholder:
+            (_, __) =>
+                const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+        errorWidget:
+            (_, __, ___) => const PokemonErrorCard(
+              message: 'Image not available',
+              compact: true,
+            ),
+      );
+    }
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.search_off, size: 80, color: Colors.grey),
+          const SizedBox(height: 16),
+          const Text(
+            'No Pokémon found',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.grey,
+            ),
           ),
+          const SizedBox(height: 8),
+          const Text(
+            'Try a different search term',
+            style: TextStyle(color: Colors.grey),
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton.icon(
+            onPressed: () {
+              _searchController.clear();
+              context.read<HomeViewModel>().onSearchChanged('');
+            },
+            icon: const Icon(Icons.refresh),
+            label: const Text('Clear Search'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeader(HomeViewModel viewModel) {
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.red,
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(30),
+          bottomRight: Radius.circular(30),
         ),
-      ],
+      ),
+      child: Column(
+        children: [
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            child: _buildSearchField(viewModel),
+          ),
+          const SizedBox(height: 16),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPokemonGridView(
+    List<NamedAPIResource> displayedPokemon,
+    HomeViewModel viewModel,
+  ) {
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        childAspectRatio: 0.75,
+        mainAxisSpacing: 16,
+        crossAxisSpacing: 16,
+      ),
+      itemCount: displayedPokemon.length,
+      itemBuilder: (context, index) {
+        final resource = displayedPokemon[index];
+        return FutureBuilder(
+          future: viewModel.api.pokemon.getByUrl(resource.url),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              return _buildPokemonCard(snapshot.data!);
+            } else if (snapshot.hasError) {
+              logger.e(
+                "Error loading pokemon: ${resource.url}",
+                error: snapshot.error,
+                stackTrace: snapshot.stackTrace,
+              );
+              return const PokemonErrorCard();
+            }
+            return const PokemonLoadingCard();
+          },
+        );
+      },
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF5F5F5),
+      appBar: AppBar(
+        backgroundColor: Colors.red,
+        elevation: 0,
+        title: Text(
+          widget.title,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+      ),
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
         child: Consumer<HomeViewModel>(
           builder: (context, viewModel, child) {
-            if (viewModel.allPokemonResources.isEmpty) {
-              return const Center(child: CircularProgressIndicator());
+            if (viewModel.isLoading) {
+              return const Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircularProgressIndicator(color: Colors.red),
+                    SizedBox(height: 16),
+                    Text('Loading Pokédex...'),
+                  ],
+                ),
+              );
             }
-            return Column(
-              spacing: 10,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(15, 30, 15, 0),
-                  child: _createSearchField(viewModel),
-                ),
-                Expanded(
-                  child: ListView(
-                    controller: _scrollController,
-                    children: [
-                      GridView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        gridDelegate:
-                            const SliverGridDelegateWithMaxCrossAxisExtent(
-                              maxCrossAxisExtent: 150,
-                              childAspectRatio: 0.8,
-                              mainAxisSpacing: 10,
-                              crossAxisSpacing: 10,
-                            ),
-                        itemCount: viewModel.displayedPokemon.length,
-                        itemBuilder: (context, index) {
-                          final resource = viewModel.displayedPokemon[index];
-                          return FutureBuilder(
-                            future: viewModel.api.pokemon.getByUrl(
-                              resource.url,
-                            ),
-                            builder: (context, snapshot) {
-                              if (snapshot.hasData) {
-                                final pokemonData = snapshot.data!;
-                                return Card(
-                                  elevation: 2,
-                                  child: InkWell(
-                                    onTap: () {
-                                      Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                          builder:
-                                              (context) => PokemonDetails(
-                                                pokemon: pokemonData,
-                                              ),
-                                        ),
-                                      );
-                                    },
-                                    child: _createPokemonCard(pokemonData),
-                                  ),
-                                );
-                              } else if (snapshot.hasError) {
-                                logger.e(
-                                  "Error while loading pokemon info ${resource.url}",
-                                  error: snapshot.error,
-                                  stackTrace: snapshot.stackTrace,
-                                );
-                                return const PokemonErrorCard();
-                              }
-                              return const Center(
-                                child: CircularProgressIndicator(),
-                              );
-                            },
-                          );
-                        },
+
+            return RefreshIndicator(
+              onRefresh: () => viewModel.init(),
+              color: Colors.red,
+              child: ListView(
+                controller: _scrollController,
+                physics: const AlwaysScrollableScrollPhysics(),
+                children: [
+                  _buildHeader(viewModel),
+
+                  // Display Pokemon grid or empty state
+                  if (viewModel.displayedPokemon.isEmpty &&
+                      _searchController.text.isNotEmpty)
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height - 200,
+                      child: _buildEmptyState(),
+                    )
+                  else
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: _buildPokemonGridView(
+                        viewModel.displayedPokemon,
+                        viewModel,
                       ),
-                      if (viewModel.isLoading)
-                        const Padding(
-                          padding: EdgeInsets.all(16.0),
-                          child: Center(child: CircularProgressIndicator()),
-                        ),
-                    ],
-                  ),
-                ),
-              ],
+                    ),
+
+                  // Loading indicator at the bottom
+                  if (viewModel.isLoading)
+                    const Padding(
+                      padding: EdgeInsets.all(20),
+                      child: Center(
+                        child: CircularProgressIndicator(color: Colors.red),
+                      ),
+                    ),
+                ],
+              ),
             );
           },
+        ),
+      ),
+      floatingActionButton: ValueListenableBuilder<bool>(
+        valueListenable: _showBackToTopButton,
+        builder: (context, shouldShow, child) {
+          return shouldShow
+              ? FloatingActionButton(
+                backgroundColor: Colors.red,
+                child: const Icon(Icons.arrow_upward),
+                onPressed: () {
+                  _scrollController.animateTo(
+                    0,
+                    duration: const Duration(seconds: 1),
+                    curve: Curves.easeInOut,
+                  );
+                },
+              )
+              : const SizedBox.shrink();
+        },
+      ),
+    );
+  }
+}
+
+class PokemonLoadingCard extends StatelessWidget {
+  const PokemonLoadingCard({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 2,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          color: Colors.white,
+        ),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
+                strokeWidth: 2,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Loading...',
+                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -197,28 +494,64 @@ class _PokedexHomeState extends State<PokedexHome> {
 
 class PokemonErrorCard extends StatelessWidget {
   final String message;
+  final bool compact;
+
   const PokemonErrorCard({
     super.key,
-    this.message = "Failed to fetch pokemon info!",
+    this.message = "Failed to load Pokémon!",
+    this.compact = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      spacing: 15,
-      children: [
-        Icon(Icons.cancel, color: Colors.red),
-        Text(
-          message,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.bold,
-            color: Colors.red,
+    if (compact) {
+      return Center(
+        child: Icon(Icons.broken_image, size: 30, color: Colors.grey[400]),
+      );
+    }
+
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 2,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          color: Colors.white,
+        ),
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.error_outline, color: Colors.red[300], size: 40),
+                const SizedBox(height: 12),
+                Text(
+                  message,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.grey[800],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () {
+                    // TODO: Notify view model to retry loading this pokemon
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    foregroundColor: Colors.white,
+                    minimumSize: const Size(100, 36),
+                  ),
+                  child: const Text('Retry'),
+                ),
+              ],
+            ),
           ),
         ),
-      ],
+      ),
     );
   }
 }

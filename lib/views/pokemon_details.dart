@@ -122,7 +122,7 @@ final statColors = {
   'speed': Colors.yellow,
 };
 
-final typeColors = {
+const typeColors = {
   'normal': Colors.brown,
   'fire': Colors.red,
   'water': Colors.blue,
