@@ -27,6 +27,9 @@ class ConverterFactory implements BaseConverterFactory {
     Pokemon: Converter<Pokemon>(
       fromJson: (json) => PokemonMapper.fromMap(json),
     ),
+    PokemonSpecies: Converter<PokemonSpecies>(
+      fromJson: (json) => PokemonSpeciesMapper.fromMap(json),
+    ),
   });
 
   @override

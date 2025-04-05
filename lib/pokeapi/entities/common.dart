@@ -1,3 +1,10 @@
+class APIResource {
+  /// The URL of the referenced resource.
+  final String url;
+
+  const APIResource({required this.url});
+}
+
 class NamedAPIResource {
   /// The name of the referenced resource.
   final String name;
@@ -64,4 +71,57 @@ class NamedAPIResourceList {
     previous: $previous,
     results: $results)''';
   }
+}
+
+class Name {
+  /// The localized name for an API resource in a specific language.
+  final String name;
+
+  /// The language this name is in.
+  ///
+  /// See also:
+  ///
+  /// [Language]
+  final NamedAPIResource language;
+
+  const Name({required this.name, required this.language});
+}
+
+class FlavorText {
+  /// The localized flavor text for an API resource in a specific language.
+  final String flavorText;
+
+  /// The language this name is in.
+  ///
+  /// See also:
+  ///
+  /// [Language]
+  final NamedAPIResource language;
+
+  /// The game version this flavor text is extracted from.
+  ///
+  /// See also:
+  ///
+  /// [Version]
+  final NamedAPIResource? version;
+
+  const FlavorText({
+    required this.flavorText,
+    required this.language,
+    required this.version,
+  });
+}
+
+class Description {
+  /// The localized description for an API resource in a specific language.
+  final String description;
+
+  /// The language this name is in.
+  ///
+  /// See also:
+  ///
+  /// [Language]
+  final NamedAPIResource language;
+
+  const Description({required this.description, required this.language});
 }

@@ -42,5 +42,8 @@ class NamedEndpoint<T>
 
 class PokeAPIEndpoints extends BasePokeAPIEndpoints {
   PokeAPIEndpoints(PokeAPIClient client)
-    : super(pokemon: NamedEndpoint<Pokemon>(client));
+    : super(
+        pokemon: NamedEndpoint<Pokemon>(client),
+        pokemonSpecies: NamedEndpoint<PokemonSpecies>(client),
+      );
 }

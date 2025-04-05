@@ -377,3 +377,116 @@ class ShowdownMapper {
 
   static Showdown fromJson(String content) => fromMap(json.decode(content));
 }
+
+class PokemonSpeciesMapper {
+  static PokemonSpecies fromMap(Map<String, dynamic> map) {
+    return PokemonSpecies(
+      id: map['id'],
+      name: map['name'],
+      order: map['order'],
+      genderRate: map['gender_rate'],
+      isMythical: map['is_mythical'],
+      captureRate: map['capture_rate'],
+      isLegendary: map['is_legendary'],
+      hatchCounter: map['hatch_counter'],
+      baseHappiness: map['base_happiness'],
+      formsSwitchable: map['forms_switchable'],
+      hasGenderDifferences: map['has_gender_differences'],
+      color: NamedApiResourceMapper.fromMap(map['color']),
+      shape:
+          map['shape'] == null
+              ? null
+              : NamedApiResourceMapper.fromMap(map['shape']),
+      habitat:
+          map['habitat'] == null
+              ? null
+              : NamedApiResourceMapper.fromMap(map['habitat']),
+      evolutionChain:
+          map['evolution_chain'] == null
+              ? null
+              : APIResourceMapper.fromMap(map['evolution_chain']),
+      evolvesFromSpecies:
+          map['evolves_from_species'] == null
+              ? null
+              : NamedApiResourceMapper.fromMap(map['evolves_from_species']),
+      growthRate: NamedApiResourceMapper.fromMap(map['growth_rate']),
+      generation: NamedApiResourceMapper.fromMap(map['generation']),
+      names:
+          (map['names'] as List)
+              .map((name) => NameMapper.fromMap(name))
+              .toList(),
+      isBaby: map['isBaby'],
+      genera:
+          (map['genera'] as List)
+              .map((genera) => GenusMapper.fromMap(genera))
+              .toList(),
+      eggGroups:
+          (map['egg_groups'] as List)
+              .map((eggGroup) => NamedApiResourceMapper.fromMap(eggGroup))
+              .toList(),
+      varieties:
+          (map['varieties'] as List)
+              .map((variety) => PokemonSpeciesVarietyMapper.fromMap(variety))
+              .toList(),
+      pokedexNumbers:
+          (map['pokedex_numbers'] as List)
+              .map(
+                (pokedexNumber) =>
+                    PokemonSpeciesDexEntryMapper.fromMap(pokedexNumber),
+              )
+              .toList(),
+      formDescriptions:
+          (map['form_descriptions'] as List)
+              .map((description) => DescriptionMapper.fromMap(description))
+              .toList(),
+      palParkEncounters:
+          (map['pal_park_encounters'] as List)
+              .map((palPark) => PalParkEncounterAreaMapper.fromMap(palPark))
+              .toList(),
+      flavorTextEntries:
+          (map['flavor_text_entries'] as List)
+              .map((flavorText) => FlavorTextMapper.fromMap(flavorText))
+              .toList(),
+    );
+  }
+
+  static PokemonSpecies fromJson(String content) =>
+      fromMap(json.decode(content));
+}
+
+class PokemonSpeciesDexEntryMapper {
+  static PokemonSpeciesDexEntry fromMap(Map<String, dynamic> map) {
+    return PokemonSpeciesDexEntry(
+      entryNumber: map['entry_number'],
+      pokedex: NamedApiResourceMapper.fromMap(map['pokedex']),
+    );
+  }
+}
+
+class PalParkEncounterAreaMapper {
+  static PalParkEncounterArea fromMap(Map<String, dynamic> map) {
+    return PalParkEncounterArea(
+      rate: map['rate'],
+      baseScore: map['base_score'],
+      area: NamedApiResourceMapper.fromMap(map['area']),
+    );
+  }
+}
+
+class GenusMapper {
+  static Genus fromMap(Map<String, dynamic> map) {
+    return Genus(
+      genus: map['genus'],
+      language: NamedApiResourceMapper.fromMap(map['language']),
+    );
+  }
+}
+
+class PokemonSpeciesVarietyMapper {
+  static PokemonSpeciesVariety fromMap(Map<String, dynamic> map) {
+    return PokemonSpeciesVariety(
+      isDefault: map['is_default'],
+      pokemon: NamedApiResourceMapper.fromMap(map['pokemon']),
+    );
+  }
+}

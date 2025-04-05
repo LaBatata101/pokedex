@@ -468,3 +468,217 @@ class PokemonHeldItemVersion {
 
   const PokemonHeldItemVersion({required this.version, required this.rarity});
 }
+
+class PokemonSpecies {
+  /// The identifier for this resource.
+  final int id;
+
+  /// The name for this resource.
+  final String name;
+
+  /// The order in which species should be sorted.
+  /// Based on National Dex order, except families are grouped together and sorted by stage.
+  final int order;
+
+  /// The chance of this Pokémon being female, in eighths; or -1 for genderless.
+  final int genderRate;
+
+  /// The base capture rate; up to 255. The higher the number, the easier the catch.
+  final int captureRate;
+
+  /// The happiness when caught by a normal Pokéball; up to 255.
+  /// The higher the number, the happier the Pokémon.
+  final int? baseHappiness;
+
+  /// Whether or not this is a baby Pokémon.
+  final bool isBaby;
+
+  /// Whether or not this is a legendary Pokémon.
+  final bool isLegendary;
+
+  /// Whether or not this is a mythical Pokémon.
+  final bool isMythical;
+
+  /// Initial hatch counter: one must walk 255 × (hatch_counter + 1) steps before
+  ///  this Pokémon's egg hatches, unless utilizing bonuses like Flame Body's.
+  final int? hatchCounter;
+
+  /// Whether or not this Pokémon has visual gender differences.
+  final bool hasGenderDifferences;
+
+  /// Whether or not this Pokémon has multiple forms and can switch between them.
+  final bool formsSwitchable;
+
+  /// The rate at which this Pokémon species gains levels.
+  ///
+  /// See also:
+  ///
+  /// [GrowthRate]
+  final NamedAPIResource growthRate;
+
+  /// A list of Pokedexes and the indexes reserved within them for this Pokémon species.
+  final List<PokemonSpeciesDexEntry> pokedexNumbers;
+
+  /// A list of egg groups this Pokémon species is a member of.
+  ///
+  /// See also:
+  ///
+  /// [EggGroup]
+  final List<NamedAPIResource> eggGroups;
+
+  /// The color of this Pokémon for Pokédex search.
+  ///
+  /// See also:
+  ///
+  /// [PokemonColor]
+  final NamedAPIResource color;
+
+  /// The shape of this Pokémon for Pokédex search.
+  ///
+  /// See also:
+  ///
+  /// [PokemonShape]
+  final NamedAPIResource? shape;
+
+  /// The Pokémon species that evolves into this Pokemon_species.
+  ///
+  /// See also:
+  ///
+  /// [PokemonSpecies]
+  final NamedAPIResource? evolvesFromSpecies;
+
+  /// The evolution chain this Pokémon species is a member of.
+  ///
+  /// See also:
+  ///
+  /// [EvolutionChain]
+  final APIResource? evolutionChain;
+
+  /// The habitat this Pokémon species can be encountered in.
+  ///
+  /// See also:
+  ///
+  /// [PokemonHabitat]
+  final NamedAPIResource? habitat;
+
+  /// The generation this Pokémon species was introduced in.
+  ///
+  /// See also:
+  ///
+  /// [Generation]
+  final NamedAPIResource generation;
+
+  /// The name of this resource listed in different languages.
+  final List<Name> names;
+
+  /// A list of encounters that can be had with this Pokémon species in pal park.
+  final List<PalParkEncounterArea> palParkEncounters;
+
+  /// A list of flavor text entries for this Pokémon species.
+  final List<FlavorText> flavorTextEntries;
+
+  /// Descriptions of different forms Pokémon take on within the Pokémon species.
+  final List<Description> formDescriptions;
+
+  /// The genus of this Pokémon species listed in multiple languages.
+  final List<Genus> genera;
+
+  /// A list of the Pokémon that exist within this Pokémon species.
+  final List<PokemonSpeciesVariety> varieties;
+
+  const PokemonSpecies({
+    required this.id,
+    required this.name,
+    required this.order,
+    required this.color,
+    required this.shape,
+    required this.names,
+    required this.isBaby,
+    required this.genera,
+    required this.habitat,
+    required this.eggGroups,
+    required this.varieties,
+    required this.genderRate,
+    required this.isMythical,
+    required this.growthRate,
+    required this.generation,
+    required this.captureRate,
+    required this.isLegendary,
+    required this.hatchCounter,
+    required this.baseHappiness,
+    required this.pokedexNumbers,
+    required this.evolutionChain,
+    required this.formsSwitchable,
+    required this.formDescriptions,
+    required this.palParkEncounters,
+    required this.flavorTextEntries,
+    required this.evolvesFromSpecies,
+    required this.hasGenderDifferences,
+  });
+}
+
+class PokemonSpeciesDexEntry {
+  /// The index number within the Pokédex.
+  final int entryNumber;
+
+  /// The Pokédex the referenced Pokémon species can be found in.
+  ///
+  /// See also:
+  ///
+  /// [PokedexData]
+  final NamedAPIResource pokedex;
+
+  const PokemonSpeciesDexEntry({
+    required this.entryNumber,
+    required this.pokedex,
+  });
+}
+
+class PalParkEncounterArea {
+  /// The base score given to the player when the referenced Pokémon is caught during a pal park run.
+  final int baseScore;
+
+  /// The base rate for encountering the referenced Pokémon in this pal park area.
+  final int rate;
+
+  /// The pal park area where this encounter happens.
+  ///
+  /// See also:
+  ///
+  /// [PalParkArea]
+  final NamedAPIResource area;
+
+  const PalParkEncounterArea({
+    required this.baseScore,
+    required this.rate,
+    required this.area,
+  });
+}
+
+class Genus {
+  /// The localized genus for the referenced Pokémon species
+  final String genus;
+
+  /// The language this genus is in.
+  ///
+  /// See also:
+  ///
+  /// [Language]
+  final NamedAPIResource language;
+
+  const Genus({required this.genus, required this.language});
+}
+
+class PokemonSpeciesVariety {
+  /// Whether this variety is the default variety.
+  final bool isDefault;
+
+  /// The Pokémon variety.
+  ///
+  /// See also:
+  ///
+  /// [Pokemon]
+  final NamedAPIResource pokemon;
+
+  const PokemonSpeciesVariety({required this.isDefault, required this.pokemon});
+}

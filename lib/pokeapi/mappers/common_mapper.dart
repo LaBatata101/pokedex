@@ -2,6 +2,12 @@ import 'dart:convert';
 
 import 'package:pokedex/pokeapi/entities/common.dart';
 
+class APIResourceMapper {
+  static APIResource fromMap(Map<String, dynamic> map) {
+    return APIResource(url: map['url']);
+  }
+}
+
 class NamedApiResourceMapper {
   static Map<String, dynamic> toMap(NamedAPIResource resource) {
     return {'name': resource.name, 'url': resource.url};
@@ -62,4 +68,32 @@ class NamedAPIResourceListMapper {
   static String toJson(NamedAPIResourceList list) => json.encode(toMap(list));
   static NamedAPIResourceList fromJson(String content) =>
       fromMap(json.decode(content));
+}
+
+class NameMapper {
+  static Name fromMap(Map<String, dynamic> map) {
+    return Name(
+      name: map['name'],
+      language: NamedApiResourceMapper.fromMap(map['language']),
+    );
+  }
+}
+
+class FlavorTextMapper {
+  static FlavorText fromMap(Map<String, dynamic> map) {
+    return FlavorText(
+      flavorText: map['flavor_text'],
+      language: NamedApiResourceMapper.fromMap(map['language']),
+      version: NamedApiResourceMapper.fromMap(map['version']),
+    );
+  }
+}
+
+class DescriptionMapper {
+  static Description fromMap(Map<String, dynamic> map) {
+    return Description(
+      description: map['description'],
+      language: NamedApiResourceMapper.fromMap(map['language']),
+    );
+  }
 }
