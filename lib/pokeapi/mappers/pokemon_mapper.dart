@@ -415,7 +415,7 @@ class PokemonSpeciesMapper {
           (map['names'] as List)
               .map((name) => NameMapper.fromMap(name))
               .toList(),
-      isBaby: map['isBaby'],
+      isBaby: map['is_baby'],
       genera:
           (map['genera'] as List)
               .map((genera) => GenusMapper.fromMap(genera))
