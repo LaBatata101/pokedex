@@ -4,7 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pokedex/custom/sparkling_widget.dart';
 import 'package:pokedex/pokeapi/entities/pokemon.dart';
+import 'package:pokedex/repositories/pokemon_repository.dart';
 import 'package:pokedex/utils/string.dart';
+import 'package:pokedex/viewmodels/pokemon_details_viewmodel.dart';
+import 'package:provider/provider.dart';
 
 // Enhanced type colors with primary, secondary, and text colors for better theming
 final pokemonTypeThemes = {
@@ -162,82 +165,110 @@ class PokemonDetails extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = _getTheme();
 
-    return Theme(
-      // Create a themed context that will apply throughout the page
-      data: Theme.of(context).copyWith(
-        colorScheme: Theme.of(context).colorScheme.copyWith(
-          primary: theme.primary,
-          secondary: theme.secondary,
-          onPrimary: theme.text,
-          onSecondary: theme.text,
-        ),
-        appBarTheme: AppBarTheme(
-          backgroundColor: theme.primary,
-          foregroundColor: theme.text,
-          elevation: 4,
-          centerTitle: true,
-          shadowColor: Colors.black26,
-        ),
-        cardTheme: CardTheme(
-          elevation: 3,
-          shadowColor: Colors.black38,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+    return ChangeNotifierProvider<PokemonDetailsViewModel>(
+      create:
+          (context) => PokemonDetailsViewModel(
+            context.read<PokemonRepository>(),
+            pokemon,
+          )..init(),
+      child: Theme(
+        // Create a themed context that will apply throughout the page
+        data: Theme.of(context).copyWith(
+          colorScheme: Theme.of(context).colorScheme.copyWith(
+            primary: theme.primary,
+            secondary: theme.secondary,
+            onPrimary: theme.text,
+            onSecondary: theme.text,
           ),
+          appBarTheme: AppBarTheme(
+            backgroundColor: theme.primary,
+            foregroundColor: theme.text,
+            elevation: 4,
+            centerTitle: true,
+            shadowColor: Colors.black26,
+          ),
+          cardTheme: CardTheme(
+            elevation: 3,
+            shadowColor: Colors.black38,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          progressIndicatorTheme: ProgressIndicatorThemeData(
+            color: theme.primary,
+            linearTrackColor: theme.secondary.withValues(alpha: 0.3),
+          ),
+          dividerTheme: DividerTheme.of(
+            context,
+          ).copyWith(color: theme.secondary),
         ),
-        progressIndicatorTheme: ProgressIndicatorThemeData(
-          color: theme.primary,
-          linearTrackColor: theme.secondary.withValues(alpha: 0.3),
-        ),
-        dividerTheme: DividerTheme.of(context).copyWith(color: theme.secondary),
-      ),
-      child: Scaffold(
-        appBar: AppBar(
-          title: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Nº ${pokemon.id.toString().padLeft(4, '0')}',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: theme.text,
+        child: Scaffold(
+          appBar: AppBar(
+            title: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Nº ${pokemon.id.toString().padLeft(4, '0')}',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: theme.text,
+                  ),
                 ),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                pokemon.name.capitalize(),
-                style: TextStyle(color: theme.text),
-              ),
-            ],
-          ),
-        ),
-        body: Container(
-          // Background gradient for the entire page
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [theme.primary.withValues(alpha: 0.1), Colors.white],
-              stops: const [0.0, 0.3],
+                const SizedBox(width: 8),
+                Text(
+                  pokemon.name.capitalize(),
+                  style: TextStyle(color: theme.text),
+                ),
+              ],
             ),
           ),
-          child: SafeArea(
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  HeaderWidget(pokemon: pokemon, theme: theme),
-                  BasicInfoWidget(pokemon: pokemon),
-                  StatsWidget(stats: pokemon.stats),
-                  AbilitiesWidget(abilities: pokemon.abilities),
-                  CriesWidget(cries: pokemon.cries, theme: theme),
-                  ExpandableMovesWidget(moves: pokemon.moves),
-                  // Footer space for better scrolling UX
-                  const SizedBox(height: 24),
-                ],
-              ),
-            ),
+          body: Consumer<PokemonDetailsViewModel>(
+            builder: (context, viewModel, child) {
+              if (viewModel.isLoading) {
+                return const Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      CircularProgressIndicator(color: Colors.red),
+                      SizedBox(height: 16),
+                      Text('Loading Pokémon details...'),
+                    ],
+                  ),
+                );
+              }
+              return Container(
+                // Background gradient for the entire page
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      theme.primary.withValues(alpha: 0.1),
+                      Colors.white,
+                    ],
+                    stops: const [0.0, 0.3],
+                  ),
+                ),
+                child: SafeArea(
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        HeaderWidget(pokemon, theme),
+                        BasicInfoWidget(pokemon, viewModel),
+                        StatsWidget(pokemon.stats),
+                        AbilitiesWidget(pokemon.abilities),
+                        CriesWidget(pokemon.cries, theme),
+                        ExpandableMovesWidget(pokemon.moves),
+                        // Footer space for better scrolling UX
+                        const SizedBox(height: 24),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
           ),
         ),
       ),
@@ -249,7 +280,7 @@ class HeaderWidget extends StatefulWidget {
   final Pokemon pokemon;
   final PokemonTypeTheme theme;
 
-  const HeaderWidget({super.key, required this.pokemon, required this.theme});
+  const HeaderWidget(this.pokemon, this.theme, {super.key});
 
   @override
   State<StatefulWidget> createState() => _HeaderWidgetState();
@@ -502,7 +533,23 @@ class _HeaderWidgetState extends State<HeaderWidget>
 
 class BasicInfoWidget extends StatelessWidget {
   final Pokemon pokemon;
-  const BasicInfoWidget({super.key, required this.pokemon});
+  final PokemonDetailsViewModel viewModel;
+  const BasicInfoWidget(this.pokemon, this.viewModel, {super.key});
+
+  Widget pokemonDescription() {
+    return InfoRow(
+      icon: Icons.description,
+      label: 'Description',
+      value: Text(
+        viewModel.pokemonDescription,
+        textAlign: TextAlign.justify,
+        style: TextStyle(
+          fontStyle: FontStyle.italic,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -605,18 +652,7 @@ class BasicInfoWidget extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 12),
-            // TODO: description text here (need to fetch it from the api)
-            InfoRow(
-              icon: Icons.description,
-              label: 'Description',
-              value: Text(
-                'Description not available yet',
-                style: TextStyle(
-                  fontStyle: FontStyle.italic,
-                  color: Colors.grey[600],
-                ),
-              ),
-            ),
+            pokemonDescription(),
           ],
         ),
       ),
@@ -645,16 +681,18 @@ class InfoRow extends StatelessWidget {
       children: [
         Icon(icon, color: primaryColor, size: 20),
         const SizedBox(width: 12),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              label,
-              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-            ),
-            const SizedBox(height: 4),
-            value,
-          ],
+        Flexible(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+              ),
+              const SizedBox(height: 4),
+              value,
+            ],
+          ),
         ),
       ],
     );
@@ -664,7 +702,7 @@ class InfoRow extends StatelessWidget {
 class StatsWidget extends StatelessWidget {
   final List<PokemonStat> stats;
 
-  const StatsWidget({super.key, required this.stats});
+  const StatsWidget(this.stats, {super.key});
 
   Color _getStatColor(String statName) {
     final baseColors = {
@@ -778,7 +816,7 @@ class StatsWidget extends StatelessWidget {
 class AbilitiesWidget extends StatelessWidget {
   final List<PokemonAbility> abilities;
 
-  const AbilitiesWidget({super.key, required this.abilities});
+  const AbilitiesWidget(this.abilities, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -920,7 +958,7 @@ class AbilitiesWidget extends StatelessWidget {
 class ExpandableMovesWidget extends StatelessWidget {
   final List<PokemonMove> moves;
 
-  const ExpandableMovesWidget({super.key, required this.moves});
+  const ExpandableMovesWidget(this.moves, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -965,7 +1003,7 @@ class CriesWidget extends StatefulWidget {
   final PokemonCries cries;
   final PokemonTypeTheme theme;
 
-  const CriesWidget({super.key, required this.cries, required this.theme});
+  const CriesWidget(this.cries, this.theme, {super.key});
 
   @override
   State<StatefulWidget> createState() => _CriesWidgetState();
