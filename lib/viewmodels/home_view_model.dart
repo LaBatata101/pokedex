@@ -2,11 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:pokedex/pokeapi/entities/common.dart';
-import 'package:pokedex/pokeapi/pokeapi.dart';
+import 'package:pokedex/repositories/pokemon_repository.dart';
 import 'package:pokedex/utils/logging.dart';
 
 class HomeViewModel extends ChangeNotifier {
-  final PokeAPI api;
+  final PokemonRepository repository;
   List<NamedAPIResource> allPokemonResources = [];
   List<NamedAPIResource> _filteredPokemonResources = [];
   List<NamedAPIResource> displayedPokemon = [];
@@ -19,7 +19,7 @@ class HomeViewModel extends ChangeNotifier {
 
   Timer? _debounceTimer;
 
-  HomeViewModel(this.api);
+  HomeViewModel(this.repository);
 
   @override
   void dispose() {
@@ -38,7 +38,7 @@ class HomeViewModel extends ChangeNotifier {
     if (!_isDisposed) notifyListeners();
 
     try {
-      final list = await api.pokemon.getAll();
+      final list = await repository.getAllPokemons();
       allPokemonResources = list.results;
       displayedPokemon = allPokemonResources.take(pageSize).toList();
       currentPage = 1;

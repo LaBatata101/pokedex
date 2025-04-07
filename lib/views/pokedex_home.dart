@@ -299,7 +299,9 @@ class _PokemonGridItemState extends State<PokemonGridItem> {
   void initState() {
     super.initState();
 
-    _pokemonFuture = widget.viewModel.api.pokemon.getByUrl(widget.resource.url);
+    _pokemonFuture = widget.viewModel.repository.getPokemonDetailsByUrl(
+      widget.resource.url,
+    );
   }
 
   Color _getTypeColor(String type) {
