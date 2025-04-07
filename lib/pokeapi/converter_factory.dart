@@ -2,8 +2,10 @@ import 'dart:core' as core show Type;
 import 'dart:core';
 
 import 'package:pokedex/pokeapi/entities/common.dart';
+import 'package:pokedex/pokeapi/entities/games.dart';
 import 'package:pokedex/pokeapi/entities/pokemon.dart';
 import 'package:pokedex/pokeapi/mappers/common_mapper.dart';
+import 'package:pokedex/pokeapi/mappers/games_mapper.dart';
 import 'package:pokedex/pokeapi/mappers/pokemon_mapper.dart';
 
 typedef Json = Map<String, dynamic>;
@@ -29,6 +31,9 @@ class ConverterFactory implements BaseConverterFactory {
     ),
     PokemonSpecies: Converter<PokemonSpecies>(
       fromJson: (json) => PokemonSpeciesMapper.fromMap(json),
+    ),
+    Version: Converter<Version>(
+      fromJson: (json) => VersionMapper.fromMap(json),
     ),
   });
 

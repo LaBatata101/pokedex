@@ -1,5 +1,6 @@
 import 'package:pokedex/pokeapi/base_endpoint.dart';
 import 'package:pokedex/pokeapi/entities/common.dart';
+import 'package:pokedex/pokeapi/entities/games.dart';
 import 'package:pokedex/pokeapi/entities/pokemon.dart';
 import 'package:pokedex/pokeapi/pokeapi.dart';
 
@@ -45,5 +46,6 @@ class PokeAPIEndpoints extends BasePokeAPIEndpoints {
     : super(
         pokemon: NamedEndpoint<Pokemon>(client),
         pokemonSpecies: NamedEndpoint<PokemonSpecies>(client),
+        version: NamedEndpoint<Version>(client),
       );
 }

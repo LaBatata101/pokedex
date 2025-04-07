@@ -1,4 +1,5 @@
 import 'package:pokedex/pokeapi/entities/common.dart';
+import 'package:pokedex/pokeapi/entities/games.dart';
 import 'package:pokedex/pokeapi/entities/pokemon.dart';
 
 mixin ResourceEndpointMixin<T> {
@@ -13,6 +14,9 @@ mixin ResourceEndpointMixin<T> {
         break;
       case const (PokemonSpecies):
         _resource = 'pokemon-species';
+        break;
+      case const (Version):
+        _resource = 'version';
         break;
       default:
         throw UnimplementedError('Endpoint not implemented: ${T.toString()}');
@@ -33,9 +37,11 @@ abstract class BaseNamedEndpoint<T> with ResourceEndpointMixin<T> {
 abstract class BasePokeAPIEndpoints {
   final BaseNamedEndpoint<Pokemon> pokemon;
   final BaseNamedEndpoint<PokemonSpecies> pokemonSpecies;
+  final BaseNamedEndpoint<Version> version;
 
   const BasePokeAPIEndpoints({
     required this.pokemon,
     required this.pokemonSpecies,
+    required this.version,
   });
 }
