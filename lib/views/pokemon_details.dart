@@ -347,7 +347,7 @@ class _HeaderWidgetState extends State<HeaderWidget>
             child: PageView.builder(
               itemCount: spriteUrls.length,
               itemBuilder: (context, index) {
-                final Widget imageWidget = CachedNetworkImage(
+                Widget imageWidget = CachedNetworkImage(
                   width: 220,
                   height: 220,
                   imageUrl: spriteUrls[index],
@@ -364,6 +364,14 @@ class _HeaderWidgetState extends State<HeaderWidget>
                         child: Icon(Icons.error, size: 64, color: Colors.red),
                       ),
                 );
+
+                if (index == 0) {
+                  imageWidget = Hero(
+                    tag: 'pokemon-${widget.pokemon.id}',
+                    transitionOnUserGestures: true,
+                    child: imageWidget,
+                  );
+                }
 
                 return Stack(
                   alignment: AlignmentDirectional.center,
