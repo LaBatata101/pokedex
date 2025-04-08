@@ -1,5 +1,8 @@
+import 'dart:collection';
+
 import 'package:flutter/widgets.dart';
 import 'package:pokedex/pokeapi/entities/common.dart';
+import 'package:pokedex/pokeapi/entities/evolution.dart';
 import 'package:pokedex/pokeapi/entities/games.dart';
 import 'package:pokedex/pokeapi/entities/pokemon.dart';
 import 'package:pokedex/repositories/pokemon_repository.dart';
@@ -16,6 +19,11 @@ class PokemonDetailsViewModel extends ChangeNotifier {
   PokemonSpecies? _species;
   FlavorText? _selectedFlavorText;
   Version? _gameVersion;
+  EvolutionChain? _evolutionChain;
+  List<Pokemon> _pokemonEvolutionDetails = [];
+
+  EvolutionChain? get evolutionChain => _evolutionChain;
+  List<Pokemon> get pokemonEvolutionDetails => _pokemonEvolutionDetails;
 
   Future<void> init() async {
     if (isLoading) return;
@@ -30,9 +38,19 @@ class PokemonDetailsViewModel extends ChangeNotifier {
           _selectedFlavorText!.version!.url,
         );
       }
+      if (_species?.evolutionChain != null) {
+        _evolutionChain = await _repository.getEvolutionChain(
+          _species!.evolutionChain!.url,
+        );
+        if (_evolutionChain != null) {
+          _pokemonEvolutionDetails = await _fetchEvolutionChain(
+            _evolutionChain!.chain,
+          );
+        }
+      }
     } catch (e, s) {
       logger.e(
-        "Error fetching pokémon species details",
+        "Error fetching pokémon species details for '${pokemon.name}'",
         error: e,
         stackTrace: s,
       );
@@ -51,6 +69,45 @@ class PokemonDetailsViewModel extends ChangeNotifier {
                 .toList()
               ..shuffle())
             .first;
+  }
+
+  Future<List<Pokemon>> _fetchEvolutionChain(ChainLink startLink) async {
+    List<Pokemon> result = [];
+    Queue<ChainLink> queue = Queue.of([startLink]);
+    Set<String> visiteUrls = {};
+
+    logger.d("Fetching Pokémon evolution chain data!");
+    while (queue.isNotEmpty) {
+      final currentLink = queue.removeLast();
+      if (!visiteUrls.contains(currentLink.species.url)) {
+        visiteUrls.add(currentLink.species.url);
+        try {
+          if (_species!.name == currentLink.species.name) {
+            result.add(pokemon);
+          } else {
+            final species = await _repository.getPokemonSpeciesByUrl(
+              currentLink.species.url,
+            );
+            final pokemonUrl =
+                species.varieties
+                    .where((pokemon) => pokemon.isDefault)
+                    .first
+                    .pokemon
+                    .url;
+            result.add(await _repository.getPokemonDetailsByUrl(pokemonUrl));
+          }
+        } catch (e, s) {
+          logger.e(
+            "Could not fetch details for evolution stage: ${currentLink.species.name}",
+            error: e,
+            stackTrace: s,
+          );
+        }
+        queue.addAll(currentLink.evolvesTo);
+      }
+    }
+
+    return result;
   }
 
   String get pokemonDescription {
