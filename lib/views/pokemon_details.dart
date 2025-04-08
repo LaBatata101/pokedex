@@ -225,18 +225,6 @@ class PokemonDetails extends StatelessWidget {
           ),
           body: Consumer<PokemonDetailsViewModel>(
             builder: (context, viewModel, child) {
-              if (viewModel.isLoading) {
-                return const Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      CircularProgressIndicator(color: Colors.red),
-                      SizedBox(height: 16),
-                      Text('Loading Pokémon details...'),
-                    ],
-                  ),
-                );
-              }
               return Container(
                 // Background gradient for the entire page
                 decoration: BoxDecoration(
@@ -550,14 +538,26 @@ class BasicInfoWidget extends StatelessWidget {
     return InfoRow(
       icon: Icons.description,
       label: 'Description',
-      value: Text(
-        viewModel.pokemonDescription,
-        textAlign: TextAlign.justify,
-        style: TextStyle(
-          fontStyle: FontStyle.italic,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
+      value:
+          viewModel.isLoading
+              ? const Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircularProgressIndicator(color: Colors.red),
+                    SizedBox(height: 16),
+                    Text('Loading Pokémon description...'),
+                  ],
+                ),
+              )
+              : Text(
+                viewModel.pokemonDescription,
+                textAlign: TextAlign.justify,
+                style: TextStyle(
+                  fontStyle: FontStyle.italic,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
     );
   }
 
@@ -1428,8 +1428,17 @@ class EvolutionChainWidget extends StatelessWidget {
     final theme = Theme.of(context);
     final primaryColor = theme.colorScheme.primary;
 
-    if (viewModel.evolutionChain == null) {
-      return const SizedBox.shrink();
+    if (viewModel.isLoading) {
+      return const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircularProgressIndicator(color: Colors.red),
+            SizedBox(height: 16),
+            Text('Loading Pokémon evolution details...'),
+          ],
+        ),
+      );
     }
 
     final branches = _buildEvolutionBranches(
