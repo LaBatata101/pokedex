@@ -22,6 +22,36 @@ class NamedAPIResource {
   }
 }
 
+class APIResourceList {
+  /// The total number of resources available from this API.
+  final int count;
+
+  /// The URL for the next page in the list.
+  final String? next;
+
+  /// The URL for the previous page in the list.
+  final String? previous;
+
+  /// A list of API resources.
+  final List<APIResource> results;
+
+  const APIResourceList({
+    required this.count,
+    required this.results,
+    this.next,
+    this.previous,
+  });
+
+  @override
+  String toString() {
+    return '''APIResource(
+    count: $count,
+    next: $next,
+    previous: $previous,
+    results: $results)''';
+  }
+}
+
 class VersionGameIndex {
   /// The internal id of an API resource within game data.
   final int gameIndex;

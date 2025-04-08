@@ -1,4 +1,5 @@
 import 'package:pokedex/pokeapi/entities/common.dart';
+import 'package:pokedex/pokeapi/entities/evolution.dart';
 import 'package:pokedex/pokeapi/entities/games.dart';
 import 'package:pokedex/pokeapi/entities/pokemon.dart';
 
@@ -18,6 +19,9 @@ mixin ResourceEndpointMixin<T> {
       case const (Version):
         _resource = 'version';
         break;
+      case const (EvolutionChain):
+        _resource = 'evolution-chain';
+        break;
       default:
         throw UnimplementedError('Endpoint not implemented: ${T.toString()}');
     }
@@ -34,14 +38,23 @@ abstract class BaseNamedEndpoint<T> with ResourceEndpointMixin<T> {
   Future<T> getByUrl(String url);
 }
 
+abstract class BaseEndpoint<T> with ResourceEndpointMixin<T> {
+  Future<T> get(int id);
+  Future<APIResourceList> getPage({int limit = 20, int offset = 0});
+  Future<APIResourceList> getAll();
+  Future<T> getByUrl(String url);
+}
+
 abstract class BasePokeAPIEndpoints {
   final BaseNamedEndpoint<Pokemon> pokemon;
   final BaseNamedEndpoint<PokemonSpecies> pokemonSpecies;
   final BaseNamedEndpoint<Version> version;
+  final BaseEndpoint<EvolutionChain> evolutionChain;
 
   const BasePokeAPIEndpoints({
     required this.pokemon,
     required this.pokemonSpecies,
     required this.version,
+    required this.evolutionChain,
   });
 }

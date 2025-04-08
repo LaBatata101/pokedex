@@ -1,5 +1,6 @@
 import 'package:pokedex/pokeapi/base_endpoint.dart';
 import 'package:pokedex/pokeapi/entities/common.dart';
+import 'package:pokedex/pokeapi/entities/evolution.dart';
 import 'package:pokedex/pokeapi/entities/games.dart';
 import 'package:pokedex/pokeapi/entities/pokemon.dart';
 import 'package:pokedex/pokeapi/pokeapi.dart';
@@ -41,11 +42,40 @@ class NamedEndpoint<T>
   }
 }
 
+class Endpoint<T> with ResourceEndpointMixin<T> implements BaseEndpoint<T> {
+  PokeAPIClient client;
+
+  Endpoint(this.client);
+
+  @override
+  Future<T> get(int id) {
+    return client.get<T>('$_baseUrl$path/$id');
+  }
+
+  @override
+  Future<APIResourceList> getPage({int limit = 20, int offset = 0}) {
+    return client.get<APIResourceList>(
+      '$_baseUrl$path?limit=$limit&?offset=$offset',
+    );
+  }
+
+  @override
+  Future<APIResourceList> getAll() {
+    return getPage(limit: 10_000);
+  }
+
+  @override
+  Future<T> getByUrl(String url) {
+    return client.get<T>(url);
+  }
+}
+
 class PokeAPIEndpoints extends BasePokeAPIEndpoints {
   PokeAPIEndpoints(PokeAPIClient client)
     : super(
         pokemon: NamedEndpoint<Pokemon>(client),
         pokemonSpecies: NamedEndpoint<PokemonSpecies>(client),
         version: NamedEndpoint<Version>(client),
+        evolutionChain: Endpoint<EvolutionChain>(client),
       );
 }

@@ -393,22 +393,16 @@ class PokemonSpeciesMapper {
       formsSwitchable: map['forms_switchable'],
       hasGenderDifferences: map['has_gender_differences'],
       color: NamedApiResourceMapper.fromMap(map['color']),
-      shape:
-          map['shape'] == null
-              ? null
-              : NamedApiResourceMapper.fromMap(map['shape']),
-      habitat:
-          map['habitat'] == null
-              ? null
-              : NamedApiResourceMapper.fromMap(map['habitat']),
-      evolutionChain:
-          map['evolution_chain'] == null
-              ? null
-              : APIResourceMapper.fromMap(map['evolution_chain']),
-      evolvesFromSpecies:
-          map['evolves_from_species'] == null
-              ? null
-              : NamedApiResourceMapper.fromMap(map['evolves_from_species']),
+      shape: handleNullField(map['shape'], NamedApiResourceMapper.fromMap),
+      habitat: handleNullField(map['habitat'], NamedApiResourceMapper.fromMap),
+      evolutionChain: handleNullField(
+        map['evolution_chain'],
+        APIResourceMapper.fromMap,
+      ),
+      evolvesFromSpecies: handleNullField(
+        map['evolves_from_species'],
+        NamedApiResourceMapper.fromMap,
+      ),
       growthRate: NamedApiResourceMapper.fromMap(map['growth_rate']),
       generation: NamedApiResourceMapper.fromMap(map['generation']),
       names:
