@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:pokedex/custom/progress_indicator.dart';
 import 'package:pokedex/pokeapi/entities/common.dart';
 import 'package:pokedex/pokeapi/entities/pokemon.dart';
 import 'package:pokedex/utils/logging.dart';
@@ -209,7 +210,7 @@ class _PokedexHomeState extends State<PokedexHome> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    CircularProgressIndicator(color: Colors.red),
+                    PokeballProgressIndicator(),
                     SizedBox(height: 16),
                     Text('Loading Pokédex...'),
                   ],
@@ -246,9 +247,7 @@ class _PokedexHomeState extends State<PokedexHome> {
                   if (viewModel.isLoading)
                     const Padding(
                       padding: EdgeInsets.all(20),
-                      child: Center(
-                        child: CircularProgressIndicator(color: Colors.red),
-                      ),
+                      child: Center(child: PokeballProgressIndicator()),
                     ),
                 ],
               ),
@@ -455,8 +454,7 @@ class _PokemonGridItemState extends State<PokemonGridItem> {
       return SvgPicture.network(
         imageUrl,
         placeholderBuilder:
-            (_) =>
-                const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+            (_) => const Center(child: PokeballProgressIndicator()),
         errorBuilder:
             (_, __, ___) => const PokemonErrorCard(
               message: 'Image not available',
@@ -468,8 +466,7 @@ class _PokemonGridItemState extends State<PokemonGridItem> {
         imageUrl: imageUrl,
         fit: BoxFit.contain,
         placeholder:
-            (_, __) =>
-                const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+            (_, __) => const Center(child: PokeballProgressIndicator()),
         errorWidget:
             (_, __, ___) => const PokemonErrorCard(
               message: 'Image not available',
@@ -517,10 +514,7 @@ class PokemonLoadingCard extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
-                strokeWidth: 2,
-              ),
+              const PokeballProgressIndicator(),
               const SizedBox(height: 12),
               Text(
                 'Loading...',

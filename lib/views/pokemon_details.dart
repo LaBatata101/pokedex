@@ -2,6 +2,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:pokedex/custom/progress_indicator.dart';
 import 'package:pokedex/custom/sparkling_widget.dart';
 import 'package:pokedex/pokeapi/entities/evolution.dart';
 import 'package:pokedex/pokeapi/entities/pokemon.dart';
@@ -245,7 +246,7 @@ class PokemonDetails extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         HeaderWidget(pokemon, theme),
-                        BasicInfoWidget(pokemon, viewModel),
+                        BasicInfoWidget(pokemon, viewModel, theme),
                         StatsWidget(pokemon.stats),
                         AbilitiesWidget(pokemon.abilities),
                         CriesWidget(pokemon.cries, theme),
@@ -344,8 +345,7 @@ class _HeaderWidgetState extends State<HeaderWidget>
                   fit: BoxFit.contain,
                   progressIndicatorBuilder:
                       (_, __, progressDownload) => Center(
-                        child: CircularProgressIndicator(
-                          value: progressDownload.progress,
+                        child: PokeballProgressIndicator(
                           color: widget.theme.primary,
                         ),
                       ),
@@ -532,7 +532,8 @@ class _HeaderWidgetState extends State<HeaderWidget>
 class BasicInfoWidget extends StatelessWidget {
   final Pokemon pokemon;
   final PokemonDetailsViewModel viewModel;
-  const BasicInfoWidget(this.pokemon, this.viewModel, {super.key});
+  final PokemonTypeTheme theme;
+  const BasicInfoWidget(this.pokemon, this.viewModel, this.theme, {super.key});
 
   Widget pokemonDescription() {
     return InfoRow(
@@ -540,11 +541,11 @@ class BasicInfoWidget extends StatelessWidget {
       label: 'Description',
       value:
           viewModel.isLoading
-              ? const Center(
+              ? Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    CircularProgressIndicator(color: Colors.red),
+                    PokeballProgressIndicator(color: theme.primary),
                     SizedBox(height: 16),
                     Text('Loading Pokémon description...'),
                   ],
@@ -1433,7 +1434,7 @@ class EvolutionChainWidget extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircularProgressIndicator(color: Colors.red),
+            PokeballProgressIndicator(),
             SizedBox(height: 16),
             Text('Loading Pokémon evolution details...'),
           ],
@@ -1571,11 +1572,7 @@ class _EvolutionStageWidget extends StatelessWidget {
                             (context, url) => const SizedBox(
                               width: 60,
                               height: 60,
-                              child: Center(
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                ),
-                              ),
+                              child: Center(child: PokeballProgressIndicator()),
                             ),
                         errorWidget:
                             (context, url, error) =>
