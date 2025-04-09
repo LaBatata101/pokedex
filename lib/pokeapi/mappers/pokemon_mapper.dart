@@ -121,6 +121,18 @@ class PokemonAbilityMapper {
       fromMap(json.decode(content));
 }
 
+class AbilityEffectChangeMapper {
+  static AbilityEffectChange fromMap(Map<String, dynamic> map) {
+    return AbilityEffectChange(
+      effectEntries: map['effect_entries'],
+      versionGroup: map['version_group'],
+    );
+  }
+
+  static AbilityEffectChange fromJson(String content) =>
+      fromMap(json.decode(content));
+}
+
 class PokemonHeldItemMapper {
   static Map<String, dynamic> toMap(PokemonHeldItem item) {
     return {

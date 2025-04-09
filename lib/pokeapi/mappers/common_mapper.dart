@@ -104,3 +104,39 @@ class DescriptionMapper {
     );
   }
 }
+
+class VerboseEffectMapper {
+  static VerboseEffect fromMap(Map<String, dynamic> map) {
+    return VerboseEffect(
+      effect: map['effect'],
+      // Assuming the JSON key is in snake_case.
+      shortEffect: map['short_effect'],
+      language: NamedApiResourceMapper.fromMap(map['language']),
+    );
+  }
+
+  static VerboseEffect fromJson(String source) => fromMap(json.decode(source));
+}
+
+class EffectMapper {
+  static Effect fromMap(Map<String, dynamic> map) {
+    return Effect(
+      effect: map['effect'],
+      language: NamedApiResourceMapper.fromMap(map['language']),
+    );
+  }
+
+  static Effect fromJson(String source) => fromMap(json.decode(source));
+}
+
+class MachineVersionDetailMapper {
+  static MachineVersionDetail fromMap(Map<String, dynamic> map) {
+    return MachineVersionDetail(
+      machine: APIResourceMapper.fromMap(map['machine']),
+      versionGroup: NamedApiResourceMapper.fromMap(map['version_group']),
+    );
+  }
+
+  static MachineVersionDetail fromJson(String source) =>
+      fromMap(json.decode(source));
+}

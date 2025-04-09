@@ -148,6 +148,23 @@ class PokemonAbility {
   }
 }
 
+class AbilityEffectChange {
+  /// The previous effect of this ability listed in different languages.
+  final List<Effect> effectEntries;
+
+  /// The version group in which the previous effect of this ability originated.
+  ///
+  /// See also:
+  ///
+  /// [VersionGroup]
+  final NamedAPIResource versionGroup;
+
+  const AbilityEffectChange({
+    required this.effectEntries,
+    required this.versionGroup,
+  });
+}
+
 class PokemonType {
   /// The order the Pokémon's types are listed in.
   final int slot;

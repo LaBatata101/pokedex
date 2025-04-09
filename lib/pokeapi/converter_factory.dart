@@ -4,10 +4,12 @@ import 'dart:core';
 import 'package:pokedex/pokeapi/entities/common.dart';
 import 'package:pokedex/pokeapi/entities/evolution.dart';
 import 'package:pokedex/pokeapi/entities/games.dart';
+import 'package:pokedex/pokeapi/entities/moves.dart';
 import 'package:pokedex/pokeapi/entities/pokemon.dart';
 import 'package:pokedex/pokeapi/mappers/common_mapper.dart';
 import 'package:pokedex/pokeapi/mappers/evolution_mapper.dart';
 import 'package:pokedex/pokeapi/mappers/games_mapper.dart';
+import 'package:pokedex/pokeapi/mappers/moves_mapper.dart';
 import 'package:pokedex/pokeapi/mappers/pokemon_mapper.dart';
 
 typedef Json = Map<String, dynamic>;
@@ -40,6 +42,7 @@ class ConverterFactory implements BaseConverterFactory {
     EvolutionChain: Converter<EvolutionChain>(
       fromJson: (json) => EvolutionChainMapper.fromMap(json),
     ),
+    Move: Converter<Move>(fromJson: (json) => MoveMapper.fromMap(json)),
   });
 
   @override

@@ -155,3 +155,59 @@ class Description {
 
   const Description({required this.description, required this.language});
 }
+
+class VerboseEffect {
+  /// The localized effect text for an API resource in a specific language.
+  final String effect;
+
+  /// The localized effect text in brief.
+  final String shortEffect;
+
+  /// The language this effect is in.
+  ///
+  /// See also:
+  ///
+  /// [Language]
+  final NamedAPIResource language;
+
+  const VerboseEffect({
+    required this.effect,
+    required this.shortEffect,
+    required this.language,
+  });
+}
+
+class Effect {
+  /// The localized effect text for an API resource in a specific language.
+  final String effect;
+
+  /// The language this effect is in.
+  ///
+  /// See also:
+  ///
+  /// [Language]
+  final NamedAPIResource language;
+
+  const Effect({required this.effect, required this.language});
+}
+
+class MachineVersionDetail {
+  /// The machine that teaches a move from an item.
+  ///
+  /// See also:
+  ///
+  /// [Machine]
+  final APIResource machine;
+
+  /// The version group of this specific machine.
+  ///
+  /// See also:
+  ///
+  /// [VersionGroup]
+  final NamedAPIResource versionGroup;
+
+  const MachineVersionDetail({
+    required this.machine,
+    required this.versionGroup,
+  });
+}
