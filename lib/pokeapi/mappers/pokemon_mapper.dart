@@ -124,8 +124,11 @@ class PokemonAbilityMapper {
 class AbilityEffectChangeMapper {
   static AbilityEffectChange fromMap(Map<String, dynamic> map) {
     return AbilityEffectChange(
-      effectEntries: map['effect_entries'],
-      versionGroup: map['version_group'],
+      effectEntries:
+          (map['effect_entries'] as List)
+              .map((effect) => EffectMapper.fromMap(effect))
+              .toList(),
+      versionGroup: NamedApiResourceMapper.fromMap(map['version_group']),
     );
   }
 

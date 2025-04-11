@@ -88,20 +88,18 @@ class ContestComboSetsMapper {
 class ContestComboDetailMapper {
   static ContestComboDetail fromMap(Map<String, dynamic> map) {
     return ContestComboDetail(
-      useBefore: handleNullField(
-        map['use_before'],
-        (list) =>
-            (list as List)
-                .map((item) => NamedApiResourceMapper.fromMap(item))
-                .toList(),
-      ),
-      useAfter: handleNullField(
-        map['use_after'],
-        (list) =>
-            (list as List)
-                .map((item) => NamedApiResourceMapper.fromMap(item))
-                .toList(),
-      ),
+      useBefore:
+          map['use_before'] == null
+              ? null
+              : (map['use_before'] as List)
+                  .map((item) => NamedApiResourceMapper.fromMap(item))
+                  .toList(),
+      useAfter:
+          map['use_after'] == null
+              ? null
+              : (map['use_after'] as List)
+                  .map((item) => NamedApiResourceMapper.fromMap(item))
+                  .toList(),
     );
   }
 
