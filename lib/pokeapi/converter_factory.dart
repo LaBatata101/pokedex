@@ -43,6 +43,9 @@ class ConverterFactory implements BaseConverterFactory {
       fromJson: (json) => EvolutionChainMapper.fromMap(json),
     ),
     Move: Converter<Move>(fromJson: (json) => MoveMapper.fromMap(json)),
+    Ability: Converter<Ability>(
+      fromJson: (json) => AbilityMapper.fromMap(json),
+    ),
   });
 
   @override

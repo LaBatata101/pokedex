@@ -499,3 +499,62 @@ class PokemonSpeciesVarietyMapper {
     );
   }
 }
+
+class AbilityMapper {
+  static Ability fromMap(Map<String, dynamic> map) {
+    return Ability(
+      id: map['id'],
+      name: map['name'],
+      isMainSeries: map['is_main_series'],
+      generation: NamedApiResourceMapper.fromMap(map['generation']),
+      names:
+          (map['names'] as List)
+              .map((nameMap) => NameMapper.fromMap(nameMap))
+              .toList(),
+      effectEntries:
+          (map['effect_entries'] as List)
+              .map((effectMap) => VerboseEffectMapper.fromMap(effectMap))
+              .toList(),
+      effectChanges:
+          (map['effect_changes'] as List)
+              .map((changeMap) => AbilityEffectChangeMapper.fromMap(changeMap))
+              .toList(),
+      flavorTextEntries:
+          (map['flavor_text_entries'] as List)
+              .map((flavorMap) => AbilityFlavorTextMapper.fromMap(flavorMap))
+              .toList(),
+      pokemon:
+          (map['pokemon'] as List)
+              .map((pokemonMap) => AbilityPokemonMapper.fromMap(pokemonMap))
+              .toList(),
+    );
+  }
+
+  static Ability fromJson(String content) => fromMap(json.decode(content));
+}
+
+class AbilityFlavorTextMapper {
+  static AbilityFlavorText fromMap(Map<String, dynamic> map) {
+    return AbilityFlavorText(
+      flavorText: map['flavor_text'],
+      language: NamedApiResourceMapper.fromMap(map['language']),
+      versionGroup: NamedApiResourceMapper.fromMap(map['version_group']),
+    );
+  }
+
+  static AbilityFlavorText fromJson(String content) =>
+      fromMap(json.decode(content));
+}
+
+class AbilityPokemonMapper {
+  static AbilityPokemon fromMap(Map<String, dynamic> map) {
+    return AbilityPokemon(
+      isHidden: map['is_hidden'],
+      slot: map['slot'],
+      pokemon: NamedApiResourceMapper.fromMap(map['pokemon']),
+    );
+  }
+
+  static AbilityPokemon fromJson(String content) =>
+      fromMap(json.decode(content));
+}

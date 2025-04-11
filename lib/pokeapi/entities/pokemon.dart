@@ -699,3 +699,133 @@ class PokemonSpeciesVariety {
 
   const PokemonSpeciesVariety({required this.isDefault, required this.pokemon});
 }
+
+/// Represents an Ability resource.
+class Ability {
+  /// The identifier for this resource.
+  final int id;
+
+  /// The name for this resource.
+  final String name;
+
+  /// Whether or not this ability originated in the main series of the video games.
+  final bool isMainSeries;
+
+  /// The generation this ability originated in.
+  ///
+  /// See also:
+  ///
+  /// [Generation]
+  final NamedAPIResource generation;
+
+  /// The name of this resource listed in different languages.
+  final List<Name> names;
+
+  /// The effect of this ability listed in different languages.
+  final List<VerboseEffect> effectEntries;
+
+  /// The list of previous effects this ability has had across version groups.
+  final List<AbilityEffectChange> effectChanges;
+
+  /// The flavor text of this ability listed in different languages.
+  final List<AbilityFlavorText> flavorTextEntries;
+
+  /// A list of Pokémon that could potentially have this ability.
+  final List<AbilityPokemon> pokemon;
+
+  const Ability({
+    required this.id,
+    required this.name,
+    required this.isMainSeries,
+    required this.generation,
+    required this.names,
+    required this.effectEntries,
+    required this.effectChanges,
+    required this.flavorTextEntries,
+    required this.pokemon,
+  });
+
+  @override
+  String toString() {
+    // Note: Including long lists in toString might produce very long outputs.
+    // Consider omitting or summarizing them if needed for debugging clarity.
+    return '''Ability(
+id: $id,
+name: $name,
+isMainSeries: $isMainSeries,
+generation: $generation,
+names: $names,
+effectEntries: $effectEntries,
+effectChanges: $effectChanges,
+flavorTextEntries: $flavorTextEntries,
+pokemon: $pokemon
+)''';
+  }
+}
+
+/// Represents the flavor text of an Ability in a specific language and version group.
+class AbilityFlavorText {
+  /// The localized name for an API resource in a specific language.
+  final String flavorText;
+
+  /// The language this text resource is in.
+  ///
+  /// See also:
+  ///
+  /// [Language]
+  final NamedAPIResource language;
+
+  /// The version group that uses this flavor text.
+  ///
+  /// See also:
+  ///
+  /// [VersionGroup]
+  final NamedAPIResource versionGroup;
+
+  const AbilityFlavorText({
+    required this.flavorText,
+    required this.language,
+    required this.versionGroup,
+  });
+
+  @override
+  String toString() {
+    return '''AbilityFlavorText(
+flavorText: $flavorText,
+language: $language,
+versionGroup: $versionGroup
+)''';
+  }
+}
+
+/// Represents a Pokémon that could potentially have a specific Ability.
+class AbilityPokemon {
+  /// Whether or not this a hidden ability for the referenced Pokémon.
+  final bool isHidden;
+
+  /// Pokémon have 3 ability 'slots' which hold references to possible abilities they could have.
+  /// This is the slot of this ability for the referenced pokemon.
+  final int slot;
+
+  /// The Pokémon this ability could belong to.
+  ///
+  /// See also:
+  ///
+  /// [Pokemon]
+  final NamedAPIResource pokemon;
+
+  const AbilityPokemon({
+    required this.isHidden,
+    required this.slot,
+    required this.pokemon,
+  });
+
+  @override
+  String toString() {
+    return '''AbilityPokemon(
+isHidden: $isHidden,
+slot: $slot,
+pokemon: $pokemon
+)''';
+  }
+}
