@@ -147,4 +147,12 @@ class PokemonDetailsViewModel extends ChangeNotifier {
     }
     return 'No description found.';
   }
+
+  String get pokemonGeneration {
+    if (_species != null) {
+      final generationParts = _species!.generation.name.split('-');
+      return '${generationParts[0].capitalize()} ${generationParts[1].toUpperCase()}';
+    }
+    return 'N/A';
+  }
 }

@@ -8,8 +8,13 @@ import 'package:pokedex/views/pokemon_details.dart';
 class BasicInfoWidget extends StatelessWidget {
   final Pokemon pokemon;
   final PokemonDetailsViewModel viewModel;
-  final PokemonTypeTheme theme;
-  const BasicInfoWidget(this.pokemon, this.viewModel, this.theme, {super.key});
+  final PokemonTypeTheme typeTheme;
+  const BasicInfoWidget(
+    this.pokemon,
+    this.viewModel,
+    this.typeTheme, {
+    super.key,
+  });
 
   Widget pokemonDescription() {
     return _InfoRow(
@@ -21,7 +26,7 @@ class BasicInfoWidget extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    PokeballProgressIndicator(color: theme.primary),
+                    PokeballProgressIndicator(color: typeTheme.primary),
                     SizedBox(height: 16),
                     Text('Loading Pokémon description...'),
                   ],
@@ -45,8 +50,7 @@ class BasicInfoWidget extends StatelessWidget {
     final weightInKg = pokemon.weight / 10;
     final weightInLbs = weightInKg * 2.20462;
 
-    final theme = Theme.of(context);
-    final primaryColor = theme.colorScheme.primary;
+    final primaryColor = Theme.of(context).colorScheme.primary;
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -128,6 +132,27 @@ class BasicInfoWidget extends StatelessWidget {
                 ],
               ),
             ),
+            const SizedBox(height: 12),
+
+            viewModel.isLoading
+                ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      PokeballProgressIndicator(color: typeTheme.primary),
+                      SizedBox(height: 16),
+                      Text('Loading Pokémon generation...'),
+                    ],
+                  ),
+                )
+                : _InfoRow(
+                  icon: Icons.timeline,
+                  label: "Generation",
+                  value: Text(
+                    viewModel.pokemonGeneration,
+                    style: const TextStyle(fontWeight: FontWeight.w500),
+                  ),
+                ),
             const SizedBox(height: 12),
 
             _InfoRow(
