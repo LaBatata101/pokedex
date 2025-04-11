@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:pokedex/pokeapi/entities/common.dart';
 import 'package:pokedex/pokeapi/entities/evolution.dart';
 import 'package:pokedex/pokeapi/entities/games.dart';
+import 'package:pokedex/pokeapi/entities/moves.dart';
 import 'package:pokedex/pokeapi/entities/pokemon.dart';
 import 'package:pokedex/repositories/pokemon_repository.dart';
 import 'package:pokedex/utils/logging.dart';
@@ -108,6 +109,16 @@ class PokemonDetailsViewModel extends ChangeNotifier {
     }
 
     return result;
+  }
+
+  Future<List<Move>> fetchMovesDetails(
+    Iterable<PokemonMove> pokemonMoves,
+  ) async {
+    return Future.wait(
+      pokemonMoves.map(
+        (pokemonMove) => _repository.getMoveByUrl(pokemonMove.move.url),
+      ),
+    );
   }
 
   String get pokemonDescription {

@@ -1,6 +1,7 @@
 import 'package:pokedex/pokeapi/entities/common.dart';
 import 'package:pokedex/pokeapi/entities/evolution.dart';
 import 'package:pokedex/pokeapi/entities/games.dart';
+import 'package:pokedex/pokeapi/entities/moves.dart';
 import 'package:pokedex/pokeapi/entities/pokemon.dart';
 import 'package:pokedex/pokeapi/pokeapi.dart';
 import 'package:pokedex/repositories/pokemon_repository.dart';
@@ -33,5 +34,10 @@ class PokemonRepositoryImpl implements PokemonRepository {
   @override
   Future<EvolutionChain> getEvolutionChain(String url) async {
     return await _api.evolutionChain.getByUrl(url);
+  }
+
+  @override
+  Future<Move> getMoveByUrl(String url) async {
+    return await _api.move.getByUrl(url);
   }
 }

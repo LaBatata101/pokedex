@@ -9,6 +9,7 @@ import 'package:pokedex/pokeapi/entities/pokemon.dart';
 import 'package:pokedex/repositories/pokemon_repository.dart';
 import 'package:pokedex/utils/string.dart';
 import 'package:pokedex/viewmodels/pokemon_details_viewmodel.dart';
+import 'package:pokedex/views/pokemon_details_widgets/moves_widget.dart';
 import 'package:provider/provider.dart';
 
 // Enhanced type colors with primary, secondary, and text colors for better theming
@@ -251,7 +252,7 @@ class PokemonDetails extends StatelessWidget {
                         AbilitiesWidget(pokemon.abilities),
                         CriesWidget(pokemon.cries, theme),
                         EvolutionChainWidget(viewModel),
-                        ExpandableMovesWidget(pokemon.moves),
+                        MovesWidget(pokemon.moves, viewModel),
                         // Footer space for better scrolling UX
                         const SizedBox(height: 24),
                       ],
@@ -959,50 +960,6 @@ class AbilitiesWidget extends StatelessWidget {
                   ),
                 ),
               ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class ExpandableMovesWidget extends StatelessWidget {
-  final List<PokemonMove> moves;
-
-  const ExpandableMovesWidget(this.moves, {super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final Map<String, List<PokemonMove>> movesByMethod = {};
-    for (final move in moves) {
-      for (final detail in move.versionGroupDetails) {
-        final method = detail.moveLearnMethod.name;
-        movesByMethod.putIfAbsent(method, () => []).add(move);
-      }
-    }
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Moves', style: Theme.of(context).textTheme.headlineSmall),
-            const SizedBox(height: 8),
-            ...movesByMethod.keys.map(
-              (method) => ExpansionTile(
-                title: Text(method.capitalize()),
-                children:
-                    movesByMethod[method]!
-                        .map(
-                          (move) => ListTile(
-                            title: Text(move.move.name.capitalize()),
-                          ),
-                        )
-                        .toList(),
-              ),
-            ),
           ],
         ),
       ),
