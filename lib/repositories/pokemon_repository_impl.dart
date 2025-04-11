@@ -40,4 +40,9 @@ class PokemonRepositoryImpl implements PokemonRepository {
   Future<Move> getMoveByUrl(String url) async {
     return await _api.move.getByUrl(url);
   }
+
+  @override
+  Future<Ability> getAbilityByUrl(String url) async {
+    return await _api.ability.getByUrl(url);
+  }
 }

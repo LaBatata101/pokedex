@@ -121,6 +121,20 @@ class PokemonDetailsViewModel extends ChangeNotifier {
     );
   }
 
+  Future<List<Pokemon>> fetchPokemonsWithAbility(
+    Iterable<AbilityPokemon> abilityPokemons,
+  ) async {
+    return Future.wait(
+      abilityPokemons.map(
+        (ability) => _repository.getPokemonDetailsByUrl(ability.pokemon.url),
+      ),
+    );
+  }
+
+  Future<Ability> fetchAbility(PokemonAbility ability) async {
+    return await _repository.getAbilityByUrl(ability.ability.url);
+  }
+
   String get pokemonDescription {
     if (_selectedFlavorText != null) {
       final gameVersionName =
