@@ -151,7 +151,7 @@ const typeColors = {
 
 class PokemonDetails extends StatelessWidget {
   final Pokemon pokemon;
-  const PokemonDetails({super.key, required this.pokemon});
+  const PokemonDetails(this.pokemon, {super.key});
 
   // Get the theme based on the Pokémon's primary type
   PokemonTypeTheme _getTheme() {
@@ -249,7 +249,7 @@ class PokemonDetails extends StatelessWidget {
                         HeaderWidget(pokemon, theme),
                         BasicInfoWidget(pokemon, viewModel, theme),
                         StatsWidget(pokemon.stats),
-                        AbilitiesWidget(pokemon.abilities),
+                        AbilitiesWidget(pokemon.abilities, viewModel, theme),
                         CriesWidget(pokemon.cries, theme),
                         EvolutionChainWidget(viewModel),
                         MovesWidget(pokemon.moves, viewModel),

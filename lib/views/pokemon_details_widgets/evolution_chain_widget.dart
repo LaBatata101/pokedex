@@ -97,7 +97,7 @@ class EvolutionChainWidget extends StatelessWidget {
   void _navigateToPokemonDetails(BuildContext context, Pokemon pokemon) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => PokemonDetails(pokemon: pokemon)),
+      MaterialPageRoute(builder: (context) => PokemonDetails(pokemon)),
     );
   }
 

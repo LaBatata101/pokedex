@@ -335,7 +335,7 @@ class _PokemonGridItemState extends State<PokemonGridItem> {
             onTap: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => PokemonDetails(pokemon: pokemon),
+                  builder: (context) => PokemonDetails(pokemon),
                 ),
               );
             },

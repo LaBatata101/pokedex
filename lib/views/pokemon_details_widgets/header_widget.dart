@@ -89,8 +89,12 @@ class _HeaderWidgetState extends State<HeaderWidget>
                         ),
                       ),
                   errorWidget:
-                      (_, __, ___) => const Center(
-                        child: Icon(Icons.error, size: 64, color: Colors.red),
+                      (_, _, _) => const Center(
+                        child: Icon(
+                          Icons.broken_image,
+                          size: 64,
+                          color: Colors.red,
+                        ),
                       ),
                 );
 
