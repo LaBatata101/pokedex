@@ -65,8 +65,9 @@ class HomeViewModel extends ChangeNotifier {
     } else {
       // Execute the search after 600ms with no typing
       _debounceTimer = Timer(const Duration(milliseconds: 600), () {
-        if (searchQuery != query) {
-          searchQuery = query;
+        final normalizedQuery = query.trim().toLowerCase();
+        if (searchQuery != normalizedQuery) {
+          searchQuery = normalizedQuery;
           logger.d("Debounced search executing for query: $searchQuery");
           _applyFilter();
         }
