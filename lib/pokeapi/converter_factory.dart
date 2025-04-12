@@ -4,11 +4,13 @@ import 'dart:core';
 import 'package:pokedex/pokeapi/entities/common.dart';
 import 'package:pokedex/pokeapi/entities/evolution.dart';
 import 'package:pokedex/pokeapi/entities/games.dart';
+import 'package:pokedex/pokeapi/entities/items.dart';
 import 'package:pokedex/pokeapi/entities/moves.dart';
 import 'package:pokedex/pokeapi/entities/pokemon.dart';
 import 'package:pokedex/pokeapi/mappers/common_mapper.dart';
 import 'package:pokedex/pokeapi/mappers/evolution_mapper.dart';
 import 'package:pokedex/pokeapi/mappers/games_mapper.dart';
+import 'package:pokedex/pokeapi/mappers/items_mapper.dart';
 import 'package:pokedex/pokeapi/mappers/moves_mapper.dart';
 import 'package:pokedex/pokeapi/mappers/pokemon_mapper.dart';
 
@@ -47,6 +49,7 @@ class ConverterFactory implements BaseConverterFactory {
       fromJson: (json) => AbilityMapper.fromMap(json),
     ),
     Type: Converter<Type>(fromJson: (json) => TypeMapper.fromMap(json)),
+    Item: Converter<Item>(fromJson: (json) => ItemMapper.fromMap(json)),
   });
 
   @override

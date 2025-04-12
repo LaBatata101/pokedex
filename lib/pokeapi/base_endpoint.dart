@@ -1,6 +1,7 @@
 import 'package:pokedex/pokeapi/entities/common.dart';
 import 'package:pokedex/pokeapi/entities/evolution.dart';
 import 'package:pokedex/pokeapi/entities/games.dart';
+import 'package:pokedex/pokeapi/entities/items.dart';
 import 'package:pokedex/pokeapi/entities/moves.dart';
 import 'package:pokedex/pokeapi/entities/pokemon.dart';
 
@@ -32,6 +33,9 @@ mixin ResourceEndpointMixin<T> {
       case const (Type):
         _resource = 'type';
         break;
+      case const (Item):
+        _resource = 'item';
+        break;
       default:
         throw UnimplementedError('Endpoint not implemented: ${T.toString()}');
     }
@@ -62,6 +66,7 @@ abstract class BasePokeAPIEndpoints {
   final BaseNamedEndpoint<Move> move;
   final BaseNamedEndpoint<Ability> ability;
   final BaseNamedEndpoint<Type> type;
+  final BaseNamedEndpoint<Item> item;
   final BaseEndpoint<EvolutionChain> evolutionChain;
 
   const BasePokeAPIEndpoints({
@@ -72,5 +77,6 @@ abstract class BasePokeAPIEndpoints {
     required this.move,
     required this.ability,
     required this.type,
+    required this.item,
   });
 }

@@ -235,3 +235,36 @@ gameIndex: $gameIndex,
 generation: $generation)''';
   }
 }
+
+class VersionGroupFlavorText {
+  /// The localized name for an API resource in a specific language.
+  final String text;
+
+  /// The language this name is in.
+  ///
+  /// See also:
+  ///
+  /// [Language]
+  final NamedAPIResource language;
+
+  /// The version group which uses this flavor text.
+  ///
+  /// See also:
+  ///
+  /// [VersionGroup]
+  final NamedAPIResource versionGroup;
+
+  const VersionGroupFlavorText({
+    required this.text,
+    required this.language,
+    required this.versionGroup,
+  });
+
+  @override
+  String toString() {
+    return '''VersionGroupFlavorText(
+text: $text,
+language: $language,
+versionGroup: $versionGroup)''';
+  }
+}

@@ -145,3 +145,16 @@ class GenerationGameIndexMapper {
   static GenerationGameIndex fromJson(String content) =>
       fromMap(json.decode(content));
 }
+
+class VersionGroupFlavorTextMapper {
+  static VersionGroupFlavorText fromMap(Map<String, dynamic> map) {
+    return VersionGroupFlavorText(
+      text: map['text'],
+      language: NamedApiResourceMapper.fromMap(map['language']),
+      versionGroup: NamedApiResourceMapper.fromMap(map['version_group']),
+    );
+  }
+
+  static VersionGroupFlavorText fromJson(String content) =>
+      fromMap(json.decode(content));
+}

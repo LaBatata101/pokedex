@@ -2,6 +2,7 @@ import 'package:pokedex/pokeapi/base_endpoint.dart';
 import 'package:pokedex/pokeapi/entities/common.dart';
 import 'package:pokedex/pokeapi/entities/evolution.dart';
 import 'package:pokedex/pokeapi/entities/games.dart';
+import 'package:pokedex/pokeapi/entities/items.dart';
 import 'package:pokedex/pokeapi/entities/moves.dart';
 import 'package:pokedex/pokeapi/entities/pokemon.dart';
 import 'package:pokedex/pokeapi/pokeapi.dart';
@@ -80,6 +81,7 @@ class PokeAPIEndpoints extends BasePokeAPIEndpoints {
         move: NamedEndpoint<Move>(client),
         ability: NamedEndpoint<Ability>(client),
         type: NamedEndpoint<Type>(client),
+        item: NamedEndpoint<Item>(client),
         evolutionChain: Endpoint<EvolutionChain>(client),
       );
 }
