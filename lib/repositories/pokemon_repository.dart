@@ -1,6 +1,7 @@
 import 'package:pokedex/pokeapi/entities/common.dart';
 import 'package:pokedex/pokeapi/entities/evolution.dart';
 import 'package:pokedex/pokeapi/entities/games.dart';
+import 'package:pokedex/pokeapi/entities/items.dart';
 import 'package:pokedex/pokeapi/entities/moves.dart';
 import 'package:pokedex/pokeapi/entities/pokemon.dart';
 
@@ -13,4 +14,5 @@ abstract class PokemonRepository {
   Future<Move> getMoveByUrl(String url);
   Future<Ability> getAbilityByUrl(String url);
   Future<Type> getTypeByUrl(String url);
+  Future<Item> getItemByUrl(String url);
 }

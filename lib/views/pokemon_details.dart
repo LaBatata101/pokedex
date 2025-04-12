@@ -8,6 +8,7 @@ import 'package:pokedex/views/pokemon_details_widgets/basic_info_widget.dart';
 import 'package:pokedex/views/pokemon_details_widgets/cries_widget.dart';
 import 'package:pokedex/views/pokemon_details_widgets/evolution_chain_widget.dart';
 import 'package:pokedex/views/pokemon_details_widgets/header_widget.dart';
+import 'package:pokedex/views/pokemon_details_widgets/held_items_widget.dart';
 import 'package:pokedex/views/pokemon_details_widgets/moves_widget.dart';
 import 'package:pokedex/views/pokemon_details_widgets/stats_widget.dart';
 import 'package:pokedex/views/pokemon_details_widgets/type_effectiveness_widget.dart';
@@ -249,6 +250,7 @@ class PokemonDetails extends StatelessWidget {
                       children: [
                         HeaderWidget(pokemon, theme),
                         BasicInfoWidget(pokemon, viewModel, theme),
+                        HeldItemsWidget(pokemon.heldItems, viewModel, theme),
                         TypeEffectivenessWidget(viewModel, theme),
                         StatsWidget(pokemon.stats),
                         AbilitiesWidget(pokemon.abilities, viewModel, theme),

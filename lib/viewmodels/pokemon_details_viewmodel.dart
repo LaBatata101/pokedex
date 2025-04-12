@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:pokedex/pokeapi/entities/common.dart';
 import 'package:pokedex/pokeapi/entities/evolution.dart';
 import 'package:pokedex/pokeapi/entities/games.dart';
+import 'package:pokedex/pokeapi/entities/items.dart';
 import 'package:pokedex/pokeapi/entities/moves.dart';
 import 'package:pokedex/pokeapi/entities/pokemon.dart';
 import 'package:pokedex/repositories/pokemon_repository.dart';
@@ -247,6 +248,10 @@ class PokemonDetailsViewModel extends ChangeNotifier {
 
   Future<Ability> fetchAbility(PokemonAbility ability) async {
     return await _repository.getAbilityByUrl(ability.ability.url);
+  }
+
+  Future<Item> fetchPokemonItem(PokemonHeldItem heldItem) async {
+    return await _repository.getItemByUrl(heldItem.item.url);
   }
 
   String get pokemonDescription {
