@@ -79,6 +79,7 @@ class PokeAPIEndpoints extends BasePokeAPIEndpoints {
         version: NamedEndpoint<Version>(client),
         move: NamedEndpoint<Move>(client),
         ability: NamedEndpoint<Ability>(client),
+        type: NamedEndpoint<Type>(client),
         evolutionChain: Endpoint<EvolutionChain>(client),
       );
 }

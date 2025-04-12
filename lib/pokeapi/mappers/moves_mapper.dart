@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:pokedex/pokeapi/entities/moves.dart';
 import 'package:pokedex/pokeapi/mappers/common_mapper.dart';
 import 'package:pokedex/pokeapi/mappers/pokemon_mapper.dart';
+import 'package:pokedex/pokeapi/mappers/utils.dart';
 
 class MoveMapper {
   static Move fromMap(Map<String, dynamic> map) {

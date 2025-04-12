@@ -1,6 +1,8 @@
 import 'dart:convert';
 
+import 'package:pokedex/pokeapi/entities/common.dart';
 import 'package:pokedex/pokeapi/mappers/common_mapper.dart';
+import 'package:pokedex/pokeapi/mappers/utils.dart';
 
 import '../entities/pokemon.dart';
 
@@ -557,4 +559,86 @@ class AbilityPokemonMapper {
 
   static AbilityPokemon fromJson(String content) =>
       fromMap(json.decode(content));
+}
+
+class TypeRelationsMapper {
+  static TypeRelations fromMap(Map<String, dynamic> map) {
+    List<NamedAPIResource> mapResourceList(String key) {
+      return (map[key] as List)
+          .map((item) => NamedApiResourceMapper.fromMap(item))
+          .toList();
+    }
+
+    return TypeRelations(
+      noDamageTo: mapResourceList('no_damage_to'),
+      halfDamageTo: mapResourceList('half_damage_to'),
+      doubleDamageTo: mapResourceList('double_damage_to'),
+      noDamageFrom: mapResourceList('no_damage_from'),
+      halfDamageFrom: mapResourceList('half_damage_from'),
+      doubleDamageFrom: mapResourceList('double_damage_from'),
+    );
+  }
+
+  static TypeRelations fromJson(String content) =>
+      fromMap(json.decode(content));
+}
+
+class TypeRelationsPastMapper {
+  static TypeRelationsPast fromMap(Map<String, dynamic> map) {
+    return TypeRelationsPast(
+      generation: NamedApiResourceMapper.fromMap(map['generation']),
+      damageRelations: TypeRelationsMapper.fromMap(map['damage_relations']),
+    );
+  }
+
+  static TypeRelationsPast fromJson(String content) =>
+      fromMap(json.decode(content));
+}
+
+class TypePokemonMapper {
+  static TypePokemon fromMap(Map<String, dynamic> map) {
+    return TypePokemon(
+      slot: map['slot'],
+      pokemon: NamedApiResourceMapper.fromMap(map['pokemon']),
+    );
+  }
+
+  static TypePokemon fromJson(String content) => fromMap(json.decode(content));
+}
+
+class TypeMapper {
+  static Type fromMap(Map<String, dynamic> map) {
+    return Type(
+      id: map['id'],
+      name: map['name'],
+      damageRelations: TypeRelationsMapper.fromMap(map['damage_relations']),
+      pastDamageRelations:
+          (map['past_damage_relations'] as List)
+              .map((item) => TypeRelationsPastMapper.fromMap(item))
+              .toList(),
+      gameIndices:
+          (map['game_indices'] as List)
+              .map((item) => GenerationGameIndexMapper.fromMap(item))
+              .toList(),
+      generation: NamedApiResourceMapper.fromMap(map['generation']),
+      moveDamageClass: handleNullField(
+        map['move_damage_class'],
+        NamedApiResourceMapper.fromMap,
+      ),
+      names:
+          (map['names'] as List)
+              .map((item) => NameMapper.fromMap(item))
+              .toList(),
+      pokemon:
+          (map['pokemon'] as List)
+              .map((item) => TypePokemonMapper.fromMap(item))
+              .toList(),
+      moves:
+          (map['moves'] as List)
+              .map((item) => NamedApiResourceMapper.fromMap(item))
+              .toList(),
+    );
+  }
+
+  static Type fromJson(String content) => fromMap(json.decode(content));
 }

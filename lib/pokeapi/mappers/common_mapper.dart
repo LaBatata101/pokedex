@@ -2,13 +2,6 @@ import 'dart:convert';
 
 import 'package:pokedex/pokeapi/entities/common.dart';
 
-T? handleNullField<T>(
-  dynamic field,
-  T Function(Map<String, dynamic>) callback,
-) {
-  return field == null ? null : callback(field);
-}
-
 class APIResourceMapper {
   static APIResource fromMap(Map<String, dynamic> map) {
     return APIResource(url: map['url']);
@@ -139,4 +132,16 @@ class MachineVersionDetailMapper {
 
   static MachineVersionDetail fromJson(String source) =>
       fromMap(json.decode(source));
+}
+
+class GenerationGameIndexMapper {
+  static GenerationGameIndex fromMap(Map<String, dynamic> map) {
+    return GenerationGameIndex(
+      gameIndex: map['game_index'],
+      generation: NamedApiResourceMapper.fromMap(map['generation']),
+    );
+  }
+
+  static GenerationGameIndex fromJson(String content) =>
+      fromMap(json.decode(content));
 }

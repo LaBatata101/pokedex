@@ -29,6 +29,9 @@ mixin ResourceEndpointMixin<T> {
       case const (Ability):
         _resource = 'ability';
         break;
+      case const (Type):
+        _resource = 'type';
+        break;
       default:
         throw UnimplementedError('Endpoint not implemented: ${T.toString()}');
     }
@@ -58,6 +61,7 @@ abstract class BasePokeAPIEndpoints {
   final BaseNamedEndpoint<Version> version;
   final BaseNamedEndpoint<Move> move;
   final BaseNamedEndpoint<Ability> ability;
+  final BaseNamedEndpoint<Type> type;
   final BaseEndpoint<EvolutionChain> evolutionChain;
 
   const BasePokeAPIEndpoints({
@@ -67,5 +71,6 @@ abstract class BasePokeAPIEndpoints {
     required this.evolutionChain,
     required this.move,
     required this.ability,
+    required this.type,
   });
 }

@@ -46,6 +46,7 @@ class ConverterFactory implements BaseConverterFactory {
     Ability: Converter<Ability>(
       fromJson: (json) => AbilityMapper.fromMap(json),
     ),
+    Type: Converter<Type>(fromJson: (json) => TypeMapper.fromMap(json)),
   });
 
   @override

@@ -1,5 +1,6 @@
 import 'package:pokedex/pokeapi/entities/evolution.dart';
 import 'package:pokedex/pokeapi/mappers/common_mapper.dart';
+import 'package:pokedex/pokeapi/mappers/utils.dart';
 
 class EvolutionChainMapper {
   static EvolutionChain fromMap(Map<String, dynamic> map) {

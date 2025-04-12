@@ -211,3 +211,27 @@ class MachineVersionDetail {
     required this.versionGroup,
   });
 }
+
+class GenerationGameIndex {
+  /// The internal id of an API resource within game data.
+  final int gameIndex;
+
+  /// The generation relevent to this game index.
+  ///
+  /// See also:
+  ///
+  /// [Generation]
+  final NamedAPIResource generation;
+
+  const GenerationGameIndex({
+    required this.gameIndex,
+    required this.generation,
+  });
+
+  @override
+  String toString() {
+    return '''GenerationGameIndex(
+gameIndex: $gameIndex,
+generation: $generation)''';
+  }
+}

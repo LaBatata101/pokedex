@@ -829,3 +829,185 @@ pokemon: $pokemon
 )''';
   }
 }
+
+class Type {
+  /// The identifier for this resource.
+  final int id;
+
+  /// The name for this resource.
+  final String name;
+
+  /// A detail of how effective this type is toward others and vice versa.
+  final TypeRelations damageRelations;
+
+  /// A list of details of how effective this type was toward others and
+  /// vice versa in previous generations
+  final List<TypeRelationsPast> pastDamageRelations;
+
+  /// A list of game indices relevent to this item by generation.
+  final List<GenerationGameIndex> gameIndices;
+
+  /// The generation this type was introduced in.
+  ///
+  /// See also:
+  ///
+  /// [Generation]
+  final NamedAPIResource generation;
+
+  /// The class of damage inflicted by this type.
+  ///
+  /// See also:
+  ///
+  /// [MoveDamageClass]
+  final NamedAPIResource? moveDamageClass;
+
+  /// The name of this resource listed in different languages.
+  final List<Name> names;
+
+  /// A list of details of Pokémon that have this type.
+  final List<TypePokemon> pokemon;
+
+  /// A list of moves that have this type.
+  ///
+  /// See also:
+  ///
+  /// [Move]
+  final List<NamedAPIResource> moves;
+
+  const Type({
+    required this.id,
+    required this.name,
+    required this.damageRelations,
+    required this.pastDamageRelations,
+    required this.gameIndices,
+    required this.generation,
+    this.moveDamageClass,
+    required this.names,
+    required this.pokemon,
+    required this.moves,
+  });
+
+  @override
+  String toString() {
+    return '''Type(
+id: $id,
+name: $name,
+damageRelations: $damageRelations,
+pastDamageRelations: $pastDamageRelations,
+gameIndices: $gameIndices,
+generation: $generation,
+moveDamageClass: $moveDamageClass,
+names: $names,
+pokemon: $pokemon,
+moves: $moves)''';
+  }
+}
+
+class TypePokemon {
+  /// The order the Pokémon's types are listed in.
+  final int slot;
+
+  /// The Pokémon that has the referenced type.
+  ///
+  /// See also:
+  ///
+  /// [Pokemon]
+  final NamedAPIResource pokemon;
+
+  const TypePokemon({required this.slot, required this.pokemon});
+
+  @override
+  String toString() {
+    return '''TypePokemon(
+slot: $slot,
+pokemon: $pokemon)''';
+  }
+}
+
+class TypeRelations {
+  /// A list of types this type has no effect on.
+  ///
+  /// See also:
+  ///
+  /// [Type]
+  final List<NamedAPIResource> noDamageTo;
+
+  /// A list of types this type is not very effect against.
+  ///
+  /// See also:
+  ///
+  /// [Type]
+  final List<NamedAPIResource> halfDamageTo;
+
+  /// A list of types this type is very effect against.
+  ///
+  /// See also:
+  ///
+  /// [Type]
+  final List<NamedAPIResource> doubleDamageTo;
+
+  /// A list of types that have no effect on this type.
+  ///
+  /// See also:
+  ///
+  /// [Type]
+  final List<NamedAPIResource> noDamageFrom;
+
+  /// A list of types that are not very effective against this type.
+  ///
+  /// See also:
+  ///
+  /// [Type]
+  final List<NamedAPIResource> halfDamageFrom;
+
+  /// A list of types that are very effective against this type.
+  ///
+  /// See also:
+  ///
+  /// [Type]
+  final List<NamedAPIResource> doubleDamageFrom;
+
+  const TypeRelations({
+    required this.noDamageTo,
+    required this.halfDamageTo,
+    required this.doubleDamageTo,
+    required this.noDamageFrom,
+    required this.halfDamageFrom,
+    required this.doubleDamageFrom,
+  });
+
+  @override
+  String toString() {
+    return '''TypeRelations(
+noDamageTo: $noDamageTo,
+halfDamageTo: $halfDamageTo,
+doubleDamageTo: $doubleDamageTo,
+noDamageFrom: $noDamageFrom,
+halfDamageFrom: $halfDamageFrom,
+doubleDamageFrom: $doubleDamageFrom)''';
+  }
+}
+
+class TypeRelationsPast {
+  /// The last generation in which the referenced type had the listed damage relations
+  ///
+  /// See also:
+  ///
+  /// [Generation]
+  final NamedAPIResource generation;
+
+  /// The damage relations the referenced type had up to and including the listed generation
+  final TypeRelations damageRelations;
+
+  const TypeRelationsPast({
+    required this.generation,
+    required this.damageRelations,
+  });
+
+  @override
+  String toString() {
+    return '''TypeRelationsPast(
+generation: $generation,
+damageRelations: $damageRelations)''';
+  }
+}
