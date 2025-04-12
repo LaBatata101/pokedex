@@ -37,6 +37,9 @@ class PokemonDetailsViewModel extends ChangeNotifier {
   final List<String> _halfDamageTo = [];
   final List<String> _noDamageTo = [];
 
+  bool get isLegendary => _species?.isLegendary ?? false;
+  bool get isMythical => _species?.isMythical ?? false;
+
   EvolutionChain? get evolutionChain => _evolutionChain;
   List<Pokemon> get pokemonEvolutionDetails => _pokemonEvolutionDetails;
 

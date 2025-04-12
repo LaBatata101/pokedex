@@ -9,6 +9,7 @@ import 'package:pokedex/views/pokemon_details_widgets/cries_widget.dart';
 import 'package:pokedex/views/pokemon_details_widgets/evolution_chain_widget.dart';
 import 'package:pokedex/views/pokemon_details_widgets/header_widget.dart';
 import 'package:pokedex/views/pokemon_details_widgets/held_items_widget.dart';
+import 'package:pokedex/views/pokemon_details_widgets/legendary_effect_widget.dart';
 import 'package:pokedex/views/pokemon_details_widgets/moves_widget.dart';
 import 'package:pokedex/views/pokemon_details_widgets/stats_widget.dart';
 import 'package:pokedex/views/pokemon_details_widgets/type_effectiveness_widget.dart';
@@ -229,37 +230,41 @@ class PokemonDetails extends StatelessWidget {
           ),
           body: Consumer<PokemonDetailsViewModel>(
             builder: (context, viewModel, child) {
-              return Container(
-                // Background gradient for the entire page
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      theme.primary.withValues(alpha: 0.1),
-                      Colors.white,
-                    ],
-                    stops: const [0.0, 0.3],
-                  ),
-                ),
-                child: SafeArea(
-                  child: SingleChildScrollView(
-                    physics: const BouncingScrollPhysics(),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        HeaderWidget(pokemon, theme),
-                        BasicInfoWidget(pokemon, viewModel, theme),
-                        HeldItemsWidget(pokemon.heldItems, viewModel, theme),
-                        TypeEffectivenessWidget(viewModel, theme),
-                        StatsWidget(pokemon.stats),
-                        AbilitiesWidget(pokemon.abilities, viewModel, theme),
-                        CriesWidget(pokemon.cries, theme),
-                        EvolutionChainWidget(viewModel),
-                        MovesWidget(pokemon.moves, viewModel),
-                        // Footer space for better scrolling UX
-                        const SizedBox(height: 24),
+              return LegendaryMythicalEffectWidget(
+                viewModel: viewModel,
+                theme: theme,
+                child: Container(
+                  // Background gradient for the entire page
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        theme.primary.withValues(alpha: 0.1),
+                        Colors.white,
                       ],
+                      stops: const [0.0, 0.3],
+                    ),
+                  ),
+                  child: SafeArea(
+                    child: SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          HeaderWidget(pokemon, theme),
+                          BasicInfoWidget(pokemon, viewModel, theme),
+                          HeldItemsWidget(pokemon.heldItems, viewModel, theme),
+                          TypeEffectivenessWidget(viewModel, theme),
+                          StatsWidget(pokemon.stats),
+                          AbilitiesWidget(pokemon.abilities, viewModel, theme),
+                          CriesWidget(pokemon.cries, theme),
+                          EvolutionChainWidget(viewModel),
+                          MovesWidget(pokemon.moves, viewModel),
+                          // Footer space for better scrolling UX
+                          const SizedBox(height: 24),
+                        ],
+                      ),
                     ),
                   ),
                 ),
