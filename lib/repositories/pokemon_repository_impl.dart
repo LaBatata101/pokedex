@@ -45,4 +45,9 @@ class PokemonRepositoryImpl implements PokemonRepository {
   Future<Ability> getAbilityByUrl(String url) async {
     return await _api.ability.getByUrl(url);
   }
+
+  @override
+  Future<Type> getTypeByUrl(String url) async {
+    return await _api.type.getByUrl(url);
+  }
 }

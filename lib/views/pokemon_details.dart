@@ -10,6 +10,7 @@ import 'package:pokedex/views/pokemon_details_widgets/evolution_chain_widget.dar
 import 'package:pokedex/views/pokemon_details_widgets/header_widget.dart';
 import 'package:pokedex/views/pokemon_details_widgets/moves_widget.dart';
 import 'package:pokedex/views/pokemon_details_widgets/stats_widget.dart';
+import 'package:pokedex/views/pokemon_details_widgets/type_effectiveness_widget.dart';
 import 'package:provider/provider.dart';
 
 // Enhanced type colors with primary, secondary, and text colors for better theming
@@ -248,6 +249,7 @@ class PokemonDetails extends StatelessWidget {
                       children: [
                         HeaderWidget(pokemon, theme),
                         BasicInfoWidget(pokemon, viewModel, theme),
+                        TypeEffectivenessWidget(viewModel, theme),
                         StatsWidget(pokemon.stats),
                         AbilitiesWidget(pokemon.abilities, viewModel, theme),
                         CriesWidget(pokemon.cries, theme),

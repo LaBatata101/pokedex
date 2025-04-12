@@ -23,8 +23,31 @@ class PokemonDetailsViewModel extends ChangeNotifier {
   EvolutionChain? _evolutionChain;
   List<Pokemon> _pokemonEvolutionDetails = [];
 
+  bool _isLoadingTypeEffectiveness = false;
+  // Defensive effectiveness
+  final List<String> _quadrupleDamageFrom = [];
+  final List<String> _doubleDamageFrom = [];
+  final List<String> _halfDamageFrom = [];
+  final List<String> _quarterDamageFrom = [];
+  final List<String> _noDamageFrom = [];
+
+  // Offensive effectiveness
+  final List<String> _doubleDamageTo = [];
+  final List<String> _halfDamageTo = [];
+  final List<String> _noDamageTo = [];
+
   EvolutionChain? get evolutionChain => _evolutionChain;
   List<Pokemon> get pokemonEvolutionDetails => _pokemonEvolutionDetails;
+
+  bool get isLoadingTypeEffectiveness => _isLoadingTypeEffectiveness;
+  List<String> get quadrupleDamageFrom => _quadrupleDamageFrom;
+  List<String> get doubleDamageFrom => _doubleDamageFrom;
+  List<String> get halfDamageFrom => _halfDamageFrom;
+  List<String> get quarterDamageFrom => _quarterDamageFrom;
+  List<String> get noDamageFrom => _noDamageFrom;
+  List<String> get doubleDamageTo => _doubleDamageTo;
+  List<String> get halfDamageTo => _halfDamageTo;
+  List<String> get noDamageTo => _noDamageTo;
 
   Future<void> init() async {
     if (isLoading) return;
@@ -58,6 +81,7 @@ class PokemonDetailsViewModel extends ChangeNotifier {
     } finally {
       isLoading = false;
       notifyListeners();
+      _fetchTypeEffectiveness();
     }
   }
 
@@ -129,6 +153,96 @@ class PokemonDetailsViewModel extends ChangeNotifier {
         (ability) => _repository.getPokemonDetailsByUrl(ability.pokemon.url),
       ),
     );
+  }
+
+  Future<void> _fetchTypeEffectiveness() async {
+    if (_isLoadingTypeEffectiveness) return;
+    _isLoadingTypeEffectiveness = true;
+    notifyListeners();
+
+    try {
+      final typeEffectiveness = await Future.wait(
+        pokemon.types.map((type) => _repository.getTypeByUrl(type.type.url)),
+      );
+
+      Map<String, double> defensiveMap = {};
+      Map<String, double> offensiveMap = {};
+
+      // For each of the pokemon's types, get damage relations and combine them
+      for (final typeData in typeEffectiveness) {
+        // Process defensive damage relations
+        for (final damageType in typeData.damageRelations.doubleDamageFrom) {
+          defensiveMap[damageType.name] =
+              (defensiveMap[damageType.name] ?? 1.0) * 2.0;
+        }
+
+        for (final damageType in typeData.damageRelations.halfDamageFrom) {
+          defensiveMap[damageType.name] =
+              (defensiveMap[damageType.name] ?? 1.0) * 0.5;
+        }
+
+        for (final damageType in typeData.damageRelations.noDamageFrom) {
+          defensiveMap[damageType.name] = 0.0;
+        }
+
+        // Process offensive damage relations
+        for (final damageType in typeData.damageRelations.doubleDamageTo) {
+          offensiveMap[damageType.name] =
+              (offensiveMap[damageType.name] ?? 1.0) * 2.0;
+        }
+
+        for (final damageType in typeData.damageRelations.halfDamageTo) {
+          offensiveMap[damageType.name] =
+              (offensiveMap[damageType.name] ?? 1.0) * 0.5;
+        }
+
+        for (final damageType in typeData.damageRelations.noDamageTo) {
+          offensiveMap[damageType.name] = 0.0;
+        }
+      }
+
+      // Sort types into appropriate lists based on calculated multipliers
+      defensiveMap.forEach((type, multiplier) {
+        if (multiplier == 4.0) {
+          _quadrupleDamageFrom.add(type);
+        } else if (multiplier == 2.0) {
+          _doubleDamageFrom.add(type);
+        } else if (multiplier == 0.5) {
+          _halfDamageFrom.add(type);
+        } else if (multiplier == 0.25) {
+          _quarterDamageFrom.add(type);
+        } else if (multiplier == 0.0) {
+          _noDamageFrom.add(type);
+        }
+      });
+
+      offensiveMap.forEach((type, multiplier) {
+        if (multiplier == 2.0 || multiplier == 4.0) {
+          _doubleDamageTo.add(type);
+        } else if (multiplier == 0.5 || multiplier == 0.25) {
+          _halfDamageTo.add(type);
+        } else if (multiplier == 0.0) {
+          _noDamageTo.add(type);
+        }
+      });
+
+      // Sort lists alphabetically for consistent display
+      _quadrupleDamageFrom.sort();
+      _doubleDamageFrom.sort();
+      _halfDamageFrom.sort();
+      _quarterDamageFrom.sort();
+      _noDamageFrom.sort();
+      _doubleDamageTo.sort();
+      _halfDamageTo.sort();
+      _noDamageTo.sort();
+
+      _isLoadingTypeEffectiveness = false;
+    } catch (e, s) {
+      logger.e("Error fetching types information", error: e, stackTrace: s);
+    } finally {
+      _isLoadingTypeEffectiveness = false;
+      notifyListeners();
+    }
   }
 
   Future<Ability> fetchAbility(PokemonAbility ability) async {
