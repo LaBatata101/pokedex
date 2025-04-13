@@ -107,6 +107,21 @@ final pokemonTypeThemes = {
     secondary: Color(0xFFF4BDC9),
     text: Colors.black,
   ),
+  'stellar': PokemonTypeTheme(
+    primary: Color(0xFF5E17EB),
+    secondary: Color(0xFF9A6CF9),
+    text: Colors.white,
+  ),
+  'unknown': PokemonTypeTheme(
+    primary: Color(0xFF68A090),
+    secondary: Color(0xFF92C2B5),
+    text: Colors.white,
+  ),
+  'shadow': PokemonTypeTheme(
+    primary: Color(0xFF4A4A4A),
+    secondary: Color(0xFF7D7D7D),
+    text: Colors.white,
+  ),
 };
 
 // Class to hold theme details for a Pokémon type

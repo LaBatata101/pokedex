@@ -6,6 +6,7 @@ import 'package:pokedex/pokeapi/entities/common.dart';
 import 'package:pokedex/pokeapi/entities/pokemon.dart';
 import 'package:pokedex/utils/logging.dart';
 import 'package:pokedex/viewmodels/home_view_model.dart';
+import 'package:pokedex/views/pokedex_home_widgets/type_filter_dialog.dart';
 import 'package:pokedex/views/pokemon_details.dart';
 import 'package:provider/provider.dart';
 import 'package:pokedex/utils/string.dart';
@@ -186,6 +187,52 @@ class _PokedexHomeState extends State<PokedexHome> {
     );
   }
 
+  Widget _buildActiveFilters(HomeViewModel viewModel) {
+    if (viewModel.selectedTypes.isEmpty) return const SizedBox.shrink();
+
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      color: Colors.white,
+      child: Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        children: [
+          ...viewModel.selectedTypes.map(
+            (type) => Chip(
+              backgroundColor:
+                  typeColors[type.name]?.withValues(alpha: 0.8) ?? Colors.grey,
+              label: Text(
+                type.name.capitalize(),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              deleteIconColor: Colors.white,
+              onDeleted: () {
+                viewModel.setSelectedTypes(
+                  viewModel.selectedTypes.where((t) => t != type).toList(),
+                );
+              },
+            ),
+          ),
+          if (viewModel.selectedTypes.isNotEmpty)
+            TextButton.icon(
+              icon: const Icon(Icons.clear, size: 16),
+              label: const Text('Clear All'),
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.red,
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                minimumSize: const Size(30, 30),
+              ),
+              onPressed: () => viewModel.setSelectedTypes([]),
+            ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -200,11 +247,22 @@ class _PokedexHomeState extends State<PokedexHome> {
             color: Colors.white,
           ),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.filter_list, color: Colors.white),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) => TypeFilterDialog(),
+              );
+            },
+          ),
+        ],
       ),
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
         child: Consumer<HomeViewModel>(
-          builder: (context, viewModel, child) {
+          builder: (context, viewModel, _) {
             if (viewModel.isLoading) {
               return const Center(
                 child: Column(
@@ -226,6 +284,8 @@ class _PokedexHomeState extends State<PokedexHome> {
                 physics: const AlwaysScrollableScrollPhysics(),
                 children: [
                   _buildHeader(viewModel),
+                  if (viewModel.selectedTypes.isNotEmpty)
+                    _buildActiveFilters(viewModel),
 
                   // Display Pokemon grid or empty state
                   if (viewModel.displayedPokemon.isEmpty &&
