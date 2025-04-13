@@ -50,6 +50,9 @@ class ConverterFactory implements BaseConverterFactory {
     ),
     Type: Converter<Type>(fromJson: (json) => TypeMapper.fromMap(json)),
     Item: Converter<Item>(fromJson: (json) => ItemMapper.fromMap(json)),
+    Generation: Converter<Generation>(
+      fromJson: (json) => GenerationMapper.fromMap(json),
+    ),
   });
 
   @override
