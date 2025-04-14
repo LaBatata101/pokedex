@@ -162,6 +162,8 @@ class HomeViewModel extends ChangeNotifier {
 
   Timer? _debounceTimer;
 
+  int get totalPokemonCount => _allPokemonResources.length;
+
   HomeViewModel(this.repository);
 
   @override
