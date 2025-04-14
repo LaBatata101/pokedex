@@ -188,45 +188,113 @@ class _PokedexHomeState extends State<PokedexHome> {
   }
 
   Widget _buildActiveFilters(HomeViewModel viewModel) {
-    if (viewModel.selectedTypes.isEmpty) return const SizedBox.shrink();
+    if (viewModel.selectedTypes.isEmpty &&
+        viewModel.selectedGenerations.isEmpty) {
+      return const SizedBox.shrink();
+    }
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       color: Colors.white,
-      child: Wrap(
-        spacing: 8,
-        runSpacing: 8,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ...viewModel.selectedTypes.map(
-            (type) => Chip(
-              backgroundColor:
-                  typeColors[type.name]?.withValues(alpha: 0.8) ?? Colors.grey,
-              label: Text(
-                type.name.capitalize(),
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                ),
+          if (viewModel.selectedTypes.isNotEmpty) ...[
+            const Text(
+              'Types:',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: Colors.black54,
               ),
-              deleteIconColor: Colors.white,
-              onDeleted: () {
-                viewModel.setSelectedTypes(
-                  viewModel.selectedTypes.where((t) => t != type).toList(),
-                );
-              },
             ),
-          ),
-          if (viewModel.selectedTypes.isNotEmpty)
-            TextButton.icon(
-              icon: const Icon(Icons.clear, size: 16),
-              label: const Text('Clear All'),
-              style: TextButton.styleFrom(
-                foregroundColor: Colors.red,
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                minimumSize: const Size(30, 30),
+            const SizedBox(height: 4),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children:
+                  viewModel.selectedTypes
+                      .map(
+                        (type) => Chip(
+                          backgroundColor:
+                              typeColors[type.name]?.withValues(alpha: 0.8) ??
+                              Colors.grey,
+                          label: Text(
+                            type.name.capitalize(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          deleteIconColor: Colors.white,
+                          onDeleted: () {
+                            viewModel.removeTypeFilter(type);
+                          },
+                        ),
+                      )
+                      .toList(),
+            ),
+          ],
+
+          if (viewModel.selectedGenerations.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            const Text(
+              'Generations:',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: Colors.black54,
               ),
-              onPressed: () => viewModel.setSelectedTypes([]),
+            ),
+            const SizedBox(height: 4),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children:
+                  viewModel.selectedGenerations.map((generation) {
+                    final genName = generation.name;
+                    final displayName =
+                        genName.split('-').length == 2 &&
+                                genName.startsWith('generation')
+                            ? 'Generation ${genName.split('-')[1].toUpperCase()}'
+                            : genName.capitalize();
+
+                    return Chip(
+                      backgroundColor: Colors.blueGrey.withValues(alpha: 0.8),
+                      label: Text(
+                        displayName,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      deleteIconColor: Colors.white,
+                      onDeleted: () {
+                        viewModel.removeGenerationFilter(generation);
+                      },
+                    );
+                  }).toList(),
+            ),
+          ],
+
+          const SizedBox(height: 8),
+          // Clear all button
+          if (viewModel.selectedTypes.isNotEmpty ||
+              viewModel.selectedGenerations.isNotEmpty)
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton.icon(
+                icon: const Icon(Icons.clear, size: 16),
+                label: const Text('Clear All Filters'),
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.red,
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  minimumSize: const Size(30, 30),
+                ),
+                onPressed: () => viewModel.clearFilters(),
+              ),
             ),
         ],
       ),
@@ -251,9 +319,14 @@ class _PokedexHomeState extends State<PokedexHome> {
           IconButton(
             icon: const Icon(Icons.filter_list, color: Colors.white),
             onPressed: () {
+              final viewModel = context.read<HomeViewModel>();
               showDialog(
                 context: context,
-                builder: (context) => TypeFilterDialog(),
+                builder:
+                    (context) => TypeFilterDialog(
+                      initialSelectedTypes: viewModel.selectedTypes,
+                      initialSelectedGenerations: viewModel.selectedGenerations,
+                    ),
               );
             },
           ),
@@ -284,7 +357,8 @@ class _PokedexHomeState extends State<PokedexHome> {
                 physics: const AlwaysScrollableScrollPhysics(),
                 children: [
                   _buildHeader(viewModel),
-                  if (viewModel.selectedTypes.isNotEmpty)
+                  if (viewModel.selectedTypes.isNotEmpty ||
+                      viewModel.selectedGenerations.isNotEmpty)
                     _buildActiveFilters(viewModel),
 
                   // Display Pokemon grid or empty state

@@ -61,4 +61,14 @@ class PokemonRepositoryImpl implements PokemonRepository {
   Future<NamedAPIResourceList> getAllTypes() async {
     return await _api.type.getAll();
   }
+
+  @override
+  Future<NamedAPIResourceList> getAllGenerations() async {
+    return await _api.generation.getAll();
+  }
+
+  @override
+  Future<Generation> getGenerationByUrl(String url) async {
+    return await _api.generation.getByUrl(url);
+  }
 }
