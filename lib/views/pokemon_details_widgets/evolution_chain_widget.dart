@@ -289,7 +289,7 @@ class _EvolutionStageWidget extends StatelessWidget {
     final theme = Theme.of(context);
     final primaryColor = theme.colorScheme.primary;
     final String imageUrl = pokemon.sprites.frontDefault ?? '';
-    final String name = pokemon.name.capitalize();
+    final String name = pokemon.formattedName;
     final String id = "#${pokemon.id.toString().padLeft(3, '0')}";
 
     return GestureDetector(

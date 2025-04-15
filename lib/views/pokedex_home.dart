@@ -568,7 +568,7 @@ class _PokemonGridItemState extends State<PokemonGridItem> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        pokemon.name.capitalize(),
+                        pokemon.formattedName,
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 14,

@@ -158,7 +158,7 @@ class _StatsWidgetState extends State<StatsWidget> {
           Expanded(
             child: Center(
               child: Text(
-                widget.pokemon.name.capitalize(),
+                widget.pokemon.formattedName,
                 style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -169,7 +169,7 @@ class _StatsWidgetState extends State<StatsWidget> {
           Expanded(
             child: Center(
               child: Text(
-                comparisonPokemon!.name.capitalize(),
+                comparisonPokemon!.formattedName,
                 style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -573,7 +573,7 @@ class _PokemonSearchDialogState extends State<PokemonSearchDialog> {
                           errorWidget:
                               (_, __, _) => const Icon(Icons.catching_pokemon),
                         ),
-                        title: Text(pokemon.name.capitalize()),
+                        title: Text(pokemon.formattedName),
                         subtitle: Text('ID: #${pokemon.id}'),
                         onTap: () {
                           Navigator.of(context).pop(pokemon);

@@ -237,7 +237,7 @@ class PokemonDetails extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  pokemon.name.capitalize(),
+                  pokemon.formattedName,
                   style: TextStyle(color: theme.text),
                 ),
               ],

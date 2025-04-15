@@ -1,4 +1,5 @@
 import 'package:pokedex/pokeapi/entities/common.dart';
+import 'package:pokedex/utils/string.dart';
 
 class Pokemon {
   /// The identifier for this resource.
@@ -71,6 +72,9 @@ class Pokemon {
 
   /// A list of details showing types this Pokémon has.
   final List<PokemonType> types;
+
+  String get formattedName =>
+      name.split("-").map((part) => part.capitalize()).join(" ");
 
   const Pokemon({
     required this.id,

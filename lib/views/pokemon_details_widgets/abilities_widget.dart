@@ -374,7 +374,7 @@ class AbilitiesWidget extends StatelessWidget {
                                     ),
                                     const SizedBox(height: 6),
                                     Text(
-                                      pokemon.name.capitalize(),
+                                      pokemon.formattedName,
                                       style: const TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w500,
