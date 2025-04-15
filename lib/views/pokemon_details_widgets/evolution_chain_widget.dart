@@ -7,6 +7,39 @@ import 'package:pokedex/utils/string.dart';
 import 'package:pokedex/viewmodels/pokemon_details_viewmodel.dart';
 import 'package:pokedex/views/pokemon_details.dart';
 
+enum ConditionType {
+  level,
+  useItem,
+  heldItem,
+  trade,
+  timeOfDay,
+  happiness,
+  affection,
+  location,
+  knownMove,
+  knownMoveType,
+  minBeauty,
+  gender,
+  relativePhysicalStats,
+  needsOverworldRain,
+  turnUpsideDown,
+  other,
+}
+
+class ConditionDetail {
+  final ConditionType type;
+  final String displayValue;
+  final String? iconIdentifier;
+  final dynamic value;
+
+  ConditionDetail({
+    required this.type,
+    required this.displayValue,
+    this.iconIdentifier,
+    this.value,
+  });
+}
+
 class EvolutionChainWidget extends StatelessWidget {
   final PokemonDetailsViewModel viewModel;
 
@@ -34,31 +67,54 @@ class EvolutionChainWidget extends StatelessWidget {
     Pokemon? basePokemon = _findPokemonDetail(link.species.name);
     if (basePokemon == null) return branches;
 
-    // For each evolution path (supports branching)
-    for (var nextLink in link.evolvesTo) {
-      List<Widget> branch = [];
-
-      // Add base Pokemon
-      branch.add(
-        _EvolutionStageWidget(
-          pokemon: basePokemon,
-          onTap: () => _navigateToPokemonDetails(context, basePokemon),
-        ),
-      );
-
-      // Process this evolution branch
-      _addEvolutionToBranch(context, nextLink, branch);
-      branches.add(branch);
-    }
-
     // If there are no evolutions, just return the base form
-    if (branches.isEmpty) {
+    if (link.evolvesTo.isEmpty) {
       branches.add([
         _EvolutionStageWidget(
           pokemon: basePokemon,
           onTap: () => _navigateToPokemonDetails(context, basePokemon),
         ),
       ]);
+    } else {
+      // For each evolution path (supports branching)
+      for (var nextLink in link.evolvesTo) {
+        List<Widget> branch = [];
+
+        final firstEvolutionConditions = _getEvolutionConditions(
+          nextLink.evolutionDetails,
+        );
+        String? baseHeldItemName =
+            firstEvolutionConditions
+                    .firstWhere(
+                      (cond) => cond.type == ConditionType.heldItem,
+                      // Retorna um dummy se não encontrar para evitar erro no orElse
+                      orElse:
+                          () => ConditionDetail(
+                            type: ConditionType.other,
+                            displayValue: '',
+                          ),
+                    )
+                    .value
+                as String?;
+
+        // Add base Pokemon
+        branch.add(
+          _EvolutionStageWidget(
+            pokemon: basePokemon,
+            onTap: () => _navigateToPokemonDetails(context, basePokemon),
+            heldItemName: baseHeldItemName,
+          ),
+        );
+
+        // Process this evolution branch
+        _addEvolutionToBranch(
+          context,
+          nextLink,
+          branch,
+          firstEvolutionConditions,
+        );
+        branches.add(branch);
+      }
     }
 
     return branches;
@@ -69,27 +125,48 @@ class EvolutionChainWidget extends StatelessWidget {
     BuildContext context,
     ChainLink link,
     List<Widget> branch,
+    List<ConditionDetail> conditions,
   ) {
     Pokemon? currentPokemon = _findPokemonDetail(link.species.name);
     if (currentPokemon == null) return;
 
-    // Add evolution arrow with condition
-    String evolutionCondition = _getEvolutionCondition(link.evolutionDetails);
     branch.add(
-      _EvolutionArrow(condition: evolutionCondition, theme: Theme.of(context)),
+      _EvolutionArrow(conditions: conditions, theme: Theme.of(context)),
     );
 
-    // Add the Pokemon
+    String? nextHeldItemName;
+    ChainLink? nextLink;
+    List<ConditionDetail> nextStepConditions = [];
+
+    if (link.evolvesTo.isNotEmpty) {
+      // gets the first branch
+      nextLink = link.evolvesTo.first;
+      nextStepConditions = _getEvolutionConditions(nextLink.evolutionDetails);
+      nextHeldItemName =
+          nextStepConditions
+                  .firstWhere(
+                    (cond) => cond.type == ConditionType.heldItem,
+                    orElse:
+                        () => ConditionDetail(
+                          type: ConditionType.other,
+                          displayValue: '',
+                        ),
+                  )
+                  .value
+              as String?;
+    }
+
     branch.add(
       _EvolutionStageWidget(
         pokemon: currentPokemon,
         onTap: () => _navigateToPokemonDetails(context, currentPokemon),
+        heldItemName: nextHeldItemName,
       ),
     );
 
     // If this Pokemon evolves further, continue the chain
-    if (link.evolvesTo.isNotEmpty) {
-      _addEvolutionToBranch(context, link.evolvesTo.first, branch);
+    if (nextLink != null) {
+      _addEvolutionToBranch(context, nextLink, branch, nextStepConditions);
     }
   }
 
@@ -99,55 +176,6 @@ class EvolutionChainWidget extends StatelessWidget {
       context,
       MaterialPageRoute(builder: (context) => PokemonDetails(pokemon)),
     );
-  }
-
-  // Enhanced evolution condition display
-  String _getEvolutionCondition(List<EvolutionDetail> details) {
-    if (details.isEmpty) return "";
-
-    // Find the appropriate detail to display
-    for (var detail in details) {
-      // Level-up evolution
-      if (detail.trigger.name == 'level-up') {
-        if (detail.minLevel != null) {
-          return "Level ${detail.minLevel}";
-        }
-        if (detail.minHappiness != null) {
-          return "Happiness ${detail.minHappiness}";
-        }
-        if (detail.timeOfDay.isNotEmpty) {
-          return "${detail.timeOfDay.capitalize()} time";
-        }
-        return "Level up";
-      }
-
-      // Trade evolution
-      if (detail.trigger.name == 'trade') {
-        if (detail.heldItem != null) {
-          String itemName = detail.heldItem!.name
-              .split('-')
-              .map((word) => word.capitalize())
-              .join(' ');
-          return "Trade with $itemName";
-        }
-        return "Trade";
-      }
-
-      // Item evolution
-      if (detail.trigger.name == 'use-item' && detail.item != null) {
-        String itemName = detail.item!.name
-            .split('-')
-            .map((word) => word.capitalize())
-            .join(' ');
-        return itemName;
-      }
-    }
-
-    // Default fallback
-    return details.first.trigger.name
-        .split('-')
-        .map((word) => word.capitalize())
-        .join(' ');
   }
 
   @override
@@ -248,8 +276,13 @@ class EvolutionChainWidget extends StatelessWidget {
 class _EvolutionStageWidget extends StatelessWidget {
   final Pokemon pokemon;
   final VoidCallback onTap;
+  final String? heldItemName;
 
-  const _EvolutionStageWidget({required this.pokemon, required this.onTap});
+  const _EvolutionStageWidget({
+    required this.pokemon,
+    required this.onTap,
+    this.heldItemName,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -279,99 +312,152 @@ class _EvolutionStageWidget extends StatelessWidget {
             ),
           ],
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+        child: Stack(
           children: [
-            // Pokemon image
-            Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                color: primaryColor.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child:
-                  imageUrl.isNotEmpty
-                      ? CachedNetworkImage(
-                        imageUrl: imageUrl,
-                        placeholder:
-                            (context, url) => const SizedBox(
-                              width: 60,
-                              height: 60,
-                              child: Center(child: PokeballProgressIndicator()),
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Pokemon image
+                Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    color: primaryColor.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child:
+                      imageUrl.isNotEmpty
+                          ? CachedNetworkImage(
+                            imageUrl: imageUrl,
+                            placeholder:
+                                (context, url) => const SizedBox(
+                                  width: 60,
+                                  height: 60,
+                                  child: Center(
+                                    child: PokeballProgressIndicator(),
+                                  ),
+                                ),
+                            errorWidget:
+                                (context, url, error) =>
+                                    const Icon(Icons.error_outline, size: 40),
+                            width: 80,
+                            height: 80,
+                            fit: BoxFit.contain,
+                          )
+                          : const SizedBox(
+                            width: 80,
+                            height: 80,
+                            child: Center(
+                              child: Icon(
+                                Icons.broken_image,
+                                size: 40,
+                                color: Colors.grey,
+                              ),
                             ),
-                        errorWidget:
-                            (context, url, error) =>
-                                const Icon(Icons.error_outline, size: 40),
-                        width: 80,
-                        height: 80,
-                        fit: BoxFit.contain,
-                      )
-                      : const SizedBox(
-                        width: 80,
-                        height: 80,
-                        child: Center(
-                          child: Icon(
-                            Icons.broken_image,
-                            size: 40,
-                            color: Colors.grey,
                           ),
+                ),
+                const SizedBox(height: 8),
+
+                // Pokemon name
+                Text(
+                  name,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+
+                // Pokemon ID
+                Text(
+                  id,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: Colors.grey[600],
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+
+                // Pokemon types
+                const SizedBox(height: 4),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children:
+                      pokemon.types.take(2).map((type) {
+                        final typeTheme =
+                            pokemonTypeThemes[type.type.name] ??
+                            pokemonTypeThemes['normal']!;
+
+                        return Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 2),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: typeTheme.primary,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Text(
+                            type.type.name.capitalize(),
+                            style: TextStyle(
+                              color: typeTheme.text,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                ),
+              ],
+            ),
+
+            // Display the held item badge with improved tooltip
+            if (heldItemName != null)
+              Positioned(
+                right: 5,
+                bottom: 60,
+                child: Tooltip(
+                  message:
+                      'Must hold ${heldItemName!.split('-').map((word) => word.capitalize()).join(' ')}',
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: Colors.blueAccent,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.2),
+                          blurRadius: 3,
+                          offset: const Offset(0, 1),
                         ),
-                      ),
-            ),
-            const SizedBox(height: 8),
-
-            // Pokemon name
-            Text(
-              name,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-
-            // Pokemon ID
-            Text(
-              id,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: Colors.grey[600],
-              ),
-              textAlign: TextAlign.center,
-            ),
-
-            // Pokemon types
-            const SizedBox(height: 4),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children:
-                  pokemon.types.take(2).map((type) {
-                    final typeTheme =
-                        pokemonTypeThemes[type.type.name] ??
-                        pokemonTypeThemes['normal']!;
-
-                    return Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 2),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 6,
-                        vertical: 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: typeTheme.primary,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Text(
-                        type.type.name.capitalize(),
-                        style: TextStyle(
-                          color: typeTheme.text,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
+                      ],
+                    ),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        CachedNetworkImage(
+                          imageUrl: _getItemUrl(heldItemName!),
+                          placeholder:
+                              (context, url) => const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: PokeballProgressIndicator(),
+                              ),
+                          errorWidget:
+                              (context, url, error) => const Icon(
+                                Icons.inventory,
+                                color: Colors.white,
+                                size: 16,
+                              ),
+                          width: 20,
+                          height: 20,
                         ),
-                      ),
-                    );
-                  }).toList(),
-            ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
           ],
         ),
       ),
@@ -380,14 +466,184 @@ class _EvolutionStageWidget extends StatelessWidget {
 }
 
 class _EvolutionArrow extends StatelessWidget {
-  final String condition;
+  final List<ConditionDetail> conditions;
   final ThemeData theme;
 
-  const _EvolutionArrow({required this.condition, required this.theme});
+  const _EvolutionArrow({required this.conditions, required this.theme});
+
+  Widget _buildConditionChip(ConditionDetail condition) {
+    final primaryColor = theme.colorScheme.primary;
+    Widget? icon;
+    String label = condition.displayValue;
+    Color? chipColor;
+
+    switch (condition.type) {
+      case ConditionType.useItem:
+        icon = CachedNetworkImage(
+          imageUrl: _getItemUrl(condition.iconIdentifier),
+          width: 16,
+          height: 16,
+          placeholder:
+              (context, url) => const SizedBox(
+                width: 16,
+                height: 16,
+                child: PokeballProgressIndicator(),
+              ),
+          errorWidget:
+              (context, url, error) => const Icon(
+                Icons.inventory_2_outlined,
+                size: 16,
+                color: Colors.blueAccent,
+              ),
+        );
+        chipColor = Colors.blueAccent.withValues(alpha: 0.15);
+        break;
+      case ConditionType.heldItem:
+        // Skip held item conditions as they're shown by the pokemon widget
+        return const SizedBox.shrink();
+      case ConditionType.trade:
+        icon = const Icon(
+          Icons.swap_horiz,
+          size: 16,
+          color: Colors.purpleAccent,
+        );
+        chipColor = Colors.purpleAccent.withValues(alpha: 0.15);
+        break;
+      case ConditionType.timeOfDay:
+        if (condition.iconIdentifier == 'day') {
+          icon = const Icon(
+            Icons.wb_sunny_outlined,
+            size: 16,
+            color: Colors.orangeAccent,
+          );
+          chipColor = Colors.orangeAccent.withValues(alpha: 0.15);
+        } else if (condition.iconIdentifier == 'night') {
+          icon = const Icon(
+            Icons.nightlight_round,
+            size: 16,
+            color: Colors.indigoAccent,
+          );
+          chipColor = Colors.indigoAccent.withValues(alpha: 0.15);
+        }
+        break;
+      case ConditionType.happiness:
+        icon = const Icon(
+          Icons.favorite_border,
+          size: 16,
+          color: Colors.pinkAccent,
+        );
+        chipColor = Colors.pinkAccent.withValues(alpha: 0.15);
+        break;
+      case ConditionType.affection:
+        icon = const Icon(Icons.favorite, size: 16, color: Colors.redAccent);
+        chipColor = Colors.redAccent.withValues(alpha: 0.15);
+        break;
+      case ConditionType.location:
+        icon = const Icon(
+          Icons.location_on_outlined,
+          size: 16,
+          color: Colors.green,
+        );
+        chipColor = Colors.green.withValues(alpha: 0.15);
+        break;
+      case ConditionType.gender:
+        if (condition.value == 1) {
+          icon = const Icon(Icons.female, size: 16, color: Colors.pink);
+          chipColor = Colors.pink.withValues(alpha: 0.15);
+        } else if (condition.value == 2) {
+          icon = const Icon(Icons.male, size: 16, color: Colors.blue);
+          chipColor = Colors.blue.withValues(alpha: 0.15);
+        }
+        break;
+      case ConditionType.needsOverworldRain:
+        icon = const Icon(
+          Icons.water_drop_outlined,
+          size: 16,
+          color: Colors.blue,
+        );
+        chipColor = Colors.blue.withValues(alpha: 0.15);
+        break;
+      case ConditionType.level:
+        icon = const Icon(Icons.upgrade, size: 16, color: Colors.amber);
+        chipColor = Colors.amber.withValues(alpha: 0.15);
+        break;
+      case ConditionType.knownMove:
+      case ConditionType.knownMoveType:
+        icon = const Icon(Icons.flash_on, size: 16, color: Colors.orangeAccent);
+        chipColor = Colors.orangeAccent.withValues(alpha: 0.15);
+        break;
+      case ConditionType.minBeauty:
+        icon = const Icon(Icons.spa, size: 16, color: Colors.pinkAccent);
+        chipColor = Colors.pinkAccent.withValues(alpha: 0.15);
+        break;
+      case ConditionType.relativePhysicalStats:
+        icon = const Icon(Icons.compare_arrows, size: 16, color: Colors.teal);
+        chipColor = Colors.teal.withValues(alpha: 0.15);
+        break;
+      case ConditionType.turnUpsideDown:
+        icon = const Icon(
+          Icons.screen_rotation,
+          size: 16,
+          color: Colors.purpleAccent,
+        );
+        chipColor = Colors.purpleAccent.withValues(alpha: 0.15);
+        break;
+      default:
+        chipColor = primaryColor.withValues(alpha: 0.15);
+    }
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: chipColor ?? primaryColor.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: primaryColor.withValues(alpha: 0.3),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (icon != null) ...[icon, const SizedBox(width: 4)],
+          Flexible(
+            child: Text(
+              label,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurface,
+                fontWeight: FontWeight.w500,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final primaryColor = theme.colorScheme.primary;
+
+    // Group similar conditions together
+    List<Widget> conditionChips = [];
+
+    // Filter out held item conditions as they're shown on the Pokémon avatar
+    var displayableConditions =
+        conditions.where((c) => c.type != ConditionType.heldItem).toList();
+
+    // Create condition chips
+    conditionChips = displayableConditions.map(_buildConditionChip).toList();
+
+    // Make sure we don't have empty widgets
+    conditionChips =
+        conditionChips.where((w) {
+          if (w is SizedBox) {
+            return w.width != null && w.width! > 0;
+          }
+          return true;
+        }).toList();
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -395,8 +651,9 @@ class _EvolutionArrow extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
+          // Arrow with gradient background
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
@@ -415,25 +672,17 @@ class _EvolutionArrow extends StatelessWidget {
               ],
             ),
           ),
-          if (condition.isNotEmpty) ...[
-            const SizedBox(height: 4),
+
+          // Condition chips
+          if (conditionChips.isNotEmpty) ...[
+            const SizedBox(height: 6),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-              decoration: BoxDecoration(
-                color: primaryColor.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: primaryColor.withValues(alpha: 0.3),
-                  width: 1,
-                ),
-              ),
-              child: Text(
-                condition,
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: primaryColor,
-                  fontWeight: FontWeight.w500,
-                ),
-                textAlign: TextAlign.center,
+              constraints: const BoxConstraints(maxWidth: 150),
+              child: Wrap(
+                alignment: WrapAlignment.center,
+                spacing: 4,
+                runSpacing: 4,
+                children: conditionChips,
               ),
             ),
           ],
@@ -441,4 +690,211 @@ class _EvolutionArrow extends StatelessWidget {
       ),
     );
   }
+}
+
+List<ConditionDetail> _getEvolutionConditions(List<EvolutionDetail> details) {
+  if (details.isEmpty) return [];
+  List<ConditionDetail> conditions = [];
+
+  final detail = details.first;
+  final triggerName = detail.trigger.name;
+
+  // Set up trigger condition first
+  if (triggerName == 'level-up') {
+    if (detail.minLevel != null) {
+      conditions.add(
+        ConditionDetail(
+          type: ConditionType.level,
+          displayValue: "Level ${detail.minLevel}",
+          value: detail.minLevel,
+        ),
+      );
+    } else {
+      // Generic level up with no specific level
+      conditions.add(
+        ConditionDetail(type: ConditionType.level, displayValue: "Level Up"),
+      );
+    }
+  } else if (triggerName == 'trade') {
+    conditions.add(
+      ConditionDetail(
+        type: ConditionType.trade,
+        displayValue: "Trade",
+        iconIdentifier: 'trade',
+      ),
+    );
+  } else if (triggerName == 'use-item' && detail.item != null) {
+    String itemName = detail.item!.name
+        .split('-')
+        .map((word) => word.capitalize())
+        .join(' ');
+    conditions.add(
+      ConditionDetail(
+        type: ConditionType.useItem,
+        displayValue: itemName,
+        iconIdentifier: detail.item!.name,
+        value: detail.item!.name,
+      ),
+    );
+  } else {
+    // Other triggers
+    conditions.add(
+      ConditionDetail(
+        type: ConditionType.other,
+        displayValue: triggerName
+            .split('-')
+            .map((e) => e.capitalize())
+            .join(' '),
+      ),
+    );
+  }
+
+  // Add additional conditions
+  if (detail.heldItem != null) {
+    String itemName = detail.heldItem!.name
+        .split('-')
+        .map((word) => word.capitalize())
+        .join(' ');
+    conditions.add(
+      ConditionDetail(
+        type: ConditionType.heldItem,
+        displayValue: "Hold $itemName",
+        iconIdentifier: detail.heldItem!.name,
+        value: detail.heldItem!.name,
+      ),
+    );
+  }
+
+  if (detail.timeOfDay.isNotEmpty) {
+    conditions.add(
+      ConditionDetail(
+        type: ConditionType.timeOfDay,
+        displayValue: detail.timeOfDay.capitalize(),
+        iconIdentifier: detail.timeOfDay,
+        value: detail.timeOfDay,
+      ),
+    );
+  }
+
+  if (detail.minHappiness != null) {
+    conditions.add(
+      ConditionDetail(
+        type: ConditionType.happiness,
+        displayValue: "High Friendship",
+        value: detail.minHappiness,
+      ),
+    );
+  }
+
+  if (detail.minAffection != null) {
+    conditions.add(
+      ConditionDetail(
+        type: ConditionType.affection,
+        displayValue: "Affection ${detail.minAffection}",
+        value: detail.minAffection,
+      ),
+    );
+  }
+
+  if (detail.minBeauty != null) {
+    conditions.add(
+      ConditionDetail(
+        type: ConditionType.minBeauty,
+        displayValue: "Beauty ${detail.minBeauty}+",
+        value: detail.minBeauty,
+      ),
+    );
+  }
+
+  if (detail.location != null) {
+    String locationName = detail.location!.name
+        .split('-')
+        .map((word) => word.capitalize())
+        .join(' ');
+    conditions.add(
+      ConditionDetail(
+        type: ConditionType.location,
+        displayValue: locationName,
+        value: detail.location!.name,
+      ),
+    );
+  }
+
+  if (detail.knownMove != null) {
+    String moveName = detail.knownMove!.name
+        .split('-')
+        .map((word) => word.capitalize())
+        .join(' ');
+    conditions.add(
+      ConditionDetail(
+        type: ConditionType.knownMove,
+        displayValue: "Knows $moveName",
+        value: detail.knownMove!.name,
+      ),
+    );
+  }
+
+  if (detail.knownMoveType != null) {
+    String typeName = detail.knownMoveType!.name.capitalize();
+    conditions.add(
+      ConditionDetail(
+        type: ConditionType.knownMoveType,
+        displayValue: "$typeName Move",
+        value: detail.knownMoveType!.name,
+      ),
+    );
+  }
+
+  if (detail.gender != null) {
+    String genderDisplay = detail.gender == 1 ? "Female" : "Male";
+    conditions.add(
+      ConditionDetail(
+        type: ConditionType.gender,
+        displayValue: genderDisplay,
+        value: detail.gender,
+      ),
+    );
+  }
+
+  if (detail.relativePhysicalStats != null) {
+    String statsDisplay;
+    if (detail.relativePhysicalStats == 1) {
+      statsDisplay = "Atk > Def";
+    } else if (detail.relativePhysicalStats == -1) {
+      statsDisplay = "Atk < Def";
+    } else {
+      statsDisplay = "Atk = Def";
+    }
+    conditions.add(
+      ConditionDetail(
+        type: ConditionType.relativePhysicalStats,
+        displayValue: statsDisplay,
+        value: detail.relativePhysicalStats,
+      ),
+    );
+  }
+
+  if (detail.needsOverworldRain) {
+    conditions.add(
+      ConditionDetail(
+        type: ConditionType.needsOverworldRain,
+        displayValue: "Rainy Weather",
+      ),
+    );
+  }
+
+  if (detail.turnUpsideDown) {
+    conditions.add(
+      ConditionDetail(
+        type: ConditionType.turnUpsideDown,
+        displayValue: "Turn Device Upside Down",
+      ),
+    );
+  }
+
+  return conditions;
+}
+
+String _getItemUrl(String? itemName) {
+  return "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/$itemName.png";
 }
