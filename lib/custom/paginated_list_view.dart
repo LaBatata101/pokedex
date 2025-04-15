@@ -109,6 +109,7 @@ class PaginatedListView<T> extends StatefulWidget {
   final Widget? loadingIndicator;
   final Axis scrollDirection;
   final int itemsPerPage;
+  final bool shrinkWrap;
 
   const PaginatedListView({
     super.key,
@@ -120,6 +121,7 @@ class PaginatedListView<T> extends StatefulWidget {
     this.loadingIndicator,
     this.scrollDirection = Axis.vertical,
     this.itemsPerPage = 20,
+    this.shrinkWrap = false,
   });
 
   @override
@@ -207,6 +209,7 @@ class _PaginatedListViewState<T> extends State<PaginatedListView<T>> {
           }
 
           return ListView.builder(
+            shrinkWrap: widget.shrinkWrap,
             scrollDirection: widget.scrollDirection,
             controller: _scrollController,
             itemCount:
