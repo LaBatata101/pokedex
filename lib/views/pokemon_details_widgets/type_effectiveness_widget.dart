@@ -240,12 +240,14 @@ class _TypeEffectivenessWidgetState extends State<TypeEffectivenessWidget>
         children: [
           Row(
             children: [
-              Text(
-                title,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                  color: textColor,
+              Expanded(
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: textColor,
+                  ),
                 ),
               ),
               const SizedBox(width: 8),
