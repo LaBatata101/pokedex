@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pokedex/pokeapi/entities/pokemon.dart';
 import 'package:pokedex/repositories/pokemon_repository.dart';
-import 'package:pokedex/utils/string.dart';
 import 'package:pokedex/viewmodels/pokemon_details_viewmodel.dart';
 import 'package:pokedex/views/pokemon_details_widgets/abilities_widget.dart';
 import 'package:pokedex/views/pokemon_details_widgets/basic_info_widget.dart';
