@@ -96,9 +96,9 @@ flutter:
     # see https://flutter.dev/to/font-from-package
 
 flutter_native_splash:
-    color: "#FF3333"
+    color: "#A60707"
     image: assets/images/splash_pokeball.png
     android_12:
         image: assets/images/splash_pokeball.png
-        icon_background_color: "#FF3333"
+        icon_background_color: "#A60707"
     web: false
