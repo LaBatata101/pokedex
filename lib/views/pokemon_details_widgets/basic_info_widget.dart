@@ -134,6 +134,131 @@ class BasicInfoWidget extends StatelessWidget {
             ),
             const SizedBox(height: 12),
 
+            _InfoRow(
+              icon: Icons.star,
+              label: 'Base Experience',
+              value: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: primaryColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  '${pokemon.baseExperience} XP',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: primaryColor,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            viewModel.isLoading
+                ? SizedBox.shrink()
+                : _InfoRow(
+                  icon: Icons.mood,
+                  label: 'Base Happiness',
+                  value: Row(
+                    children: [
+                      Expanded(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: LinearProgressIndicator(
+                            value:
+                                viewModel.baseHappiness != null
+                                    ? viewModel.baseHappiness! / 255
+                                    : 0.0,
+                            backgroundColor: Colors.grey[200],
+                            color:
+                                viewModel.baseHappiness != null
+                                    ? _getHappinessColor(
+                                      viewModel.baseHappiness!,
+                                    )
+                                    : primaryColor,
+                            minHeight: 10,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        '${viewModel.baseHappiness ?? "N/A"}/255',
+                        style: TextStyle(fontWeight: FontWeight.w500),
+                      ),
+                    ],
+                  ),
+                ),
+            const SizedBox(height: 12),
+
+            viewModel.isLoading
+                ? SizedBox.shrink()
+                : _InfoRow(
+                  icon: Icons.catching_pokemon,
+                  label: 'Capture Rate',
+                  value: Row(
+                    children: [
+                      Expanded(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: LinearProgressIndicator(
+                            value:
+                                viewModel.captureRate != null
+                                    ? viewModel.captureRate! / 255
+                                    : 0.0,
+                            backgroundColor: Colors.grey[200],
+                            color: primaryColor,
+                            minHeight: 10,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        '${viewModel.captureRate ?? "N/A"}/255',
+                        style: TextStyle(fontWeight: FontWeight.w500),
+                      ),
+                    ],
+                  ),
+                ),
+            const SizedBox(height: 12),
+
+            viewModel.isLoading
+                ? SizedBox.shrink()
+                : _InfoRow(
+                  icon: Icons.trending_up,
+                  label: 'Growth Rate',
+                  value: Text(
+                    viewModel.growthRate?.name.capitalize().replaceAll(
+                          '-',
+                          ' ',
+                        ) ??
+                        'N/A',
+                    style: const TextStyle(fontWeight: FontWeight.w500),
+                  ),
+                ),
+            const SizedBox(height: 12),
+
+            viewModel.isLoading
+                ? SizedBox.shrink()
+                : _InfoRow(
+                  icon: Icons.terrain,
+                  label: 'Habitat',
+                  value:
+                      viewModel.habitat != null
+                          ? Text(
+                            viewModel.habitat!.name.capitalize(),
+                            style: const TextStyle(fontWeight: FontWeight.w500),
+                          )
+                          : Text(
+                            'Unknown',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w500,
+                              fontStyle: FontStyle.italic,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                ),
+            const SizedBox(height: 12),
+
             viewModel.isLoading
                 ? Center(
                   child: Column(
@@ -169,6 +294,18 @@ class BasicInfoWidget extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+Color _getHappinessColor(int happiness) {
+  if (happiness < 70) {
+    return Colors.red;
+  } else if (happiness < 140) {
+    return Colors.orange;
+  } else if (happiness < 200) {
+    return Colors.lime;
+  } else {
+    return Colors.green;
   }
 }
 

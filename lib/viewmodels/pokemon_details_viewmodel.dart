@@ -40,6 +40,11 @@ class PokemonDetailsViewModel extends ChangeNotifier {
   bool get isLegendary => _species?.isLegendary ?? false;
   bool get isMythical => _species?.isMythical ?? false;
 
+  int? get captureRate => _species?.captureRate;
+  int? get baseHappiness => _species?.baseHappiness;
+  NamedAPIResource? get growthRate => _species?.growthRate;
+  NamedAPIResource? get habitat => _species?.habitat;
+
   EvolutionChain? get evolutionChain => _evolutionChain;
   List<Pokemon> get pokemonEvolutionDetails => _pokemonEvolutionDetails;
 
