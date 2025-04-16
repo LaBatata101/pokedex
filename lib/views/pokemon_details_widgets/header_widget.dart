@@ -58,6 +58,165 @@ class _HeaderWidgetState extends State<HeaderWidget>
     super.dispose();
   }
 
+  Widget _buildImageGallery() {
+    return Column(
+      children: [
+        // Animated image gallery
+        SizedBox(
+          height: 280,
+          child: PageView.builder(
+            itemCount: spriteUrls.length,
+            itemBuilder: (context, index) {
+              Widget imageWidget = CachedNetworkImage(
+                width: 220,
+                height: 220,
+                imageUrl: spriteUrls[index],
+                fit: BoxFit.contain,
+                progressIndicatorBuilder:
+                    (_, __, progressDownload) => Center(
+                      child: PokeballProgressIndicator(
+                        color: widget.theme.primary,
+                      ),
+                    ),
+                errorWidget:
+                    (_, _, _) => const Center(
+                      child: Icon(
+                        Icons.broken_image,
+                        size: 64,
+                        color: Colors.red,
+                      ),
+                    ),
+              );
+
+              if (index == 0) {
+                imageWidget = Hero(
+                  tag: 'pokemon-${widget.pokemon.id}',
+                  transitionOnUserGestures: true,
+                  child: imageWidget,
+                );
+              }
+
+              return Stack(
+                alignment: AlignmentDirectional.center,
+                children: [
+                  // Subtle background shape for the image
+                  AnimatedBuilder(
+                    animation: _animation,
+                    builder: (context, child) {
+                      return Container(
+                        width: 220 + (_animation.value * 20),
+                        height: 220 + (_animation.value * 20),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: widget.theme.secondary.withValues(alpha: 0.3),
+                        ),
+                      );
+                    },
+                  ),
+
+                  // Apply shiny effect or regular image
+                  _isShinySprite(spriteUrls[index])
+                      ? ShinySparkleEffect(child: imageWidget)
+                      : imageWidget,
+
+                  // Shiny indicator badge
+                  if (_isShinySprite(spriteUrls[index]))
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.amber,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Colors.black26,
+                              blurRadius: 4,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.star, color: Colors.white, size: 18),
+                            SizedBox(width: 4),
+                            Text(
+                              'Shiny',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            },
+            onPageChanged: (index) {
+              setState(() {
+                currentPage = index;
+              });
+            },
+          ),
+        ),
+
+        // Image pagination indicators
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(spriteUrls.length, (index) {
+              final isActive = currentPage == index;
+              return AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                margin: const EdgeInsets.symmetric(horizontal: 4.0),
+                width: isActive ? 12.0 : 8.0,
+                height: isActive ? 12.0 : 8.0,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: isActive ? widget.theme.primary : Colors.grey,
+                  boxShadow:
+                      isActive
+                          ? [
+                            BoxShadow(
+                              color: widget.theme.primary.withValues(
+                                alpha: 0.5,
+                              ),
+                              blurRadius: 4,
+                              spreadRadius: 1,
+                            ),
+                          ]
+                          : null,
+                ),
+              );
+            }),
+          ),
+        ),
+
+        // Sprite type indicator
+        if (spriteUrls.isNotEmpty)
+          Text(
+            _isShinySprite(spriteUrls[currentPage])
+                ? 'Shiny ${currentPage % 2 == 0 ? "Front" : "Back"} View'
+                : '${currentPage % 2 == 0 ? "Front" : "Back"} View',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: widget.theme.primary,
+            ),
+          ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -71,160 +230,7 @@ class _HeaderWidgetState extends State<HeaderWidget>
       ),
       child: Column(
         children: [
-          // Animated image gallery
-          SizedBox(
-            height: 280,
-            child: PageView.builder(
-              itemCount: spriteUrls.length,
-              itemBuilder: (context, index) {
-                Widget imageWidget = CachedNetworkImage(
-                  width: 220,
-                  height: 220,
-                  imageUrl: spriteUrls[index],
-                  fit: BoxFit.contain,
-                  progressIndicatorBuilder:
-                      (_, __, progressDownload) => Center(
-                        child: PokeballProgressIndicator(
-                          color: widget.theme.primary,
-                        ),
-                      ),
-                  errorWidget:
-                      (_, _, _) => const Center(
-                        child: Icon(
-                          Icons.broken_image,
-                          size: 64,
-                          color: Colors.red,
-                        ),
-                      ),
-                );
-
-                if (index == 0) {
-                  imageWidget = Hero(
-                    tag: 'pokemon-${widget.pokemon.id}',
-                    transitionOnUserGestures: true,
-                    child: imageWidget,
-                  );
-                }
-
-                return Stack(
-                  alignment: AlignmentDirectional.center,
-                  children: [
-                    // Subtle background shape for the image
-                    AnimatedBuilder(
-                      animation: _animation,
-                      builder: (context, child) {
-                        return Container(
-                          width: 220 + (_animation.value * 20),
-                          height: 220 + (_animation.value * 20),
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: widget.theme.secondary.withValues(
-                              alpha: 0.3,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-
-                    // Apply shiny effect or regular image
-                    _isShinySprite(spriteUrls[index])
-                        ? ShinySparkleEffect(child: imageWidget)
-                        : imageWidget,
-
-                    // Shiny indicator badge
-                    if (_isShinySprite(spriteUrls[index]))
-                      Positioned(
-                        top: 8,
-                        right: 8,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.amber,
-                            borderRadius: BorderRadius.circular(16),
-                            boxShadow: const [
-                              BoxShadow(
-                                color: Colors.black26,
-                                blurRadius: 4,
-                                offset: Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: const Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.star, color: Colors.white, size: 18),
-                              SizedBox(width: 4),
-                              Text(
-                                'Shiny',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                  ],
-                );
-              },
-              onPageChanged: (index) {
-                setState(() {
-                  currentPage = index;
-                });
-              },
-            ),
-          ),
-
-          // Image pagination indicators
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(spriteUrls.length, (index) {
-                final isActive = currentPage == index;
-                return AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  margin: const EdgeInsets.symmetric(horizontal: 4.0),
-                  width: isActive ? 12.0 : 8.0,
-                  height: isActive ? 12.0 : 8.0,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: isActive ? widget.theme.primary : Colors.grey,
-                    boxShadow:
-                        isActive
-                            ? [
-                              BoxShadow(
-                                color: widget.theme.primary.withValues(
-                                  alpha: 0.5,
-                                ),
-                                blurRadius: 4,
-                                spreadRadius: 1,
-                              ),
-                            ]
-                            : null,
-                  ),
-                );
-              }),
-            ),
-          ),
-
-          // Sprite type indicator
-          if (spriteUrls.isNotEmpty)
-            Text(
-              _isShinySprite(spriteUrls[currentPage])
-                  ? 'Shiny ${currentPage % 2 == 0 ? "Front" : "Back"} View'
-                  : '${currentPage % 2 == 0 ? "Front" : "Back"} View',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: widget.theme.primary,
-              ),
-            ),
+          if (spriteUrls.isNotEmpty) _buildImageGallery(),
 
           // Pokémon type badges
           Padding(
