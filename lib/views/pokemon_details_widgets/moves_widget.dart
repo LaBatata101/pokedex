@@ -588,7 +588,7 @@ class MoveListItem extends StatelessWidget {
 
             // Damage class badge
             SizedBox(
-              width: 70,
+              width: 75,
               child: Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 10,
