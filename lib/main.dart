@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:pokedex/pokeapi/pokeapi.dart';
 import 'package:pokedex/repositories/pokemon_repository.dart';
 import 'package:pokedex/repositories/pokemon_repository_impl.dart';
@@ -8,6 +9,11 @@ import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
 
   final pokeApi = await PokeAPI.create();
 
