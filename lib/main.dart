@@ -39,7 +39,7 @@ class PokedexApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: const PokedexHome(title: 'Pokédex Home'),
+      home: const PokedexHome(title: 'Pokédex'),
     );
   }
 }
