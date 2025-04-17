@@ -25,17 +25,20 @@ class PokemonDetailsViewModel extends ChangeNotifier {
   List<Pokemon> _pokemonEvolutionDetails = [];
 
   bool _isLoadingTypeEffectiveness = false;
+
+  String? errorMsg;
+
   // Defensive effectiveness
-  final List<String> _quadrupleDamageFrom = [];
-  final List<String> _doubleDamageFrom = [];
-  final List<String> _halfDamageFrom = [];
-  final List<String> _quarterDamageFrom = [];
-  final List<String> _noDamageFrom = [];
+  List<String> _quadrupleDamageFrom = [];
+  List<String> _doubleDamageFrom = [];
+  List<String> _halfDamageFrom = [];
+  List<String> _quarterDamageFrom = [];
+  List<String> _noDamageFrom = [];
 
   // Offensive effectiveness
-  final List<String> _doubleDamageTo = [];
-  final List<String> _halfDamageTo = [];
-  final List<String> _noDamageTo = [];
+  List<String> _doubleDamageTo = [];
+  List<String> _halfDamageTo = [];
+  List<String> _noDamageTo = [];
 
   bool get isLegendary => _species?.isLegendary ?? false;
   bool get isMythical => _species?.isMythical ?? false;
@@ -87,11 +90,26 @@ class PokemonDetailsViewModel extends ChangeNotifier {
         error: e,
         stackTrace: s,
       );
+      errorMsg = "Error fetching pokémon details: $e";
     } finally {
       isLoading = false;
       notifyListeners();
       _fetchTypeEffectiveness();
     }
+  }
+
+  Future<void> retry() async {
+    errorMsg = null;
+    _pokemonEvolutionDetails = [];
+    _quadrupleDamageFrom = [];
+    _doubleDamageFrom = [];
+    _halfDamageFrom = [];
+    _quarterDamageFrom = [];
+    _noDamageFrom = [];
+    _doubleDamageTo = [];
+    _halfDamageTo = [];
+    _noDamageTo = [];
+    await init();
   }
 
   FlavorText? _randomEnglishDescription() {

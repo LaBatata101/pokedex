@@ -181,6 +181,84 @@ class PokemonDetails extends StatelessWidget {
         );
   }
 
+  Widget _buildErrorMsg(
+    BuildContext context,
+    PokemonDetailsViewModel viewModel,
+    PokemonTypeTheme theme,
+  ) {
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+      elevation: 3,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: theme.primary.withValues(alpha: 0.3), width: 1),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 70,
+              height: 70,
+              decoration: BoxDecoration(
+                color: theme.secondary.withValues(alpha: 0.2),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(Icons.error_outline, size: 40, color: theme.primary),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Something went wrong!',
+              style: TextStyle(
+                color: theme.primary,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              viewModel.errorMsg!,
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.grey[800], fontSize: 14),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton.icon(
+              onPressed: viewModel.retry,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: theme.primary,
+                foregroundColor: theme.text,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              icon: const Icon(Icons.refresh),
+              label: const Text(
+                'Retry',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+            const SizedBox(height: 10),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(
+                'Go Back',
+                style: TextStyle(
+                  color: theme.primary,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = _getTheme();
@@ -265,19 +343,33 @@ class PokemonDetails extends StatelessWidget {
                       physics: const BouncingScrollPhysics(),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          HeaderWidget(pokemon, theme),
-                          BasicInfoWidget(pokemon, viewModel, theme),
-                          HeldItemsWidget(pokemon.heldItems, viewModel, theme),
-                          StatsWidget(pokemon, viewModel, theme),
-                          TypeEffectivenessWidget(viewModel, theme),
-                          AbilitiesWidget(pokemon.abilities, viewModel, theme),
-                          CriesWidget(pokemon.cries, theme),
-                          EvolutionChainWidget(viewModel),
-                          MovesWidget(pokemon.moves, viewModel),
-                          // Footer space for better scrolling UX
-                          const SizedBox(height: 24),
-                        ],
+                        children:
+                            viewModel.errorMsg != null
+                                ? [
+                                  HeaderWidget(pokemon, theme),
+                                  _buildErrorMsg(context, viewModel, theme),
+                                ]
+                                : [
+                                  HeaderWidget(pokemon, theme),
+                                  BasicInfoWidget(pokemon, viewModel, theme),
+                                  HeldItemsWidget(
+                                    pokemon.heldItems,
+                                    viewModel,
+                                    theme,
+                                  ),
+                                  StatsWidget(pokemon, viewModel, theme),
+                                  TypeEffectivenessWidget(viewModel, theme),
+                                  AbilitiesWidget(
+                                    pokemon.abilities,
+                                    viewModel,
+                                    theme,
+                                  ),
+                                  CriesWidget(pokemon.cries, theme),
+                                  EvolutionChainWidget(viewModel),
+                                  MovesWidget(pokemon.moves, viewModel),
+                                  // Footer space for better scrolling UX
+                                  const SizedBox(height: 24),
+                                ],
                       ),
                     ),
                   ),
