@@ -614,7 +614,6 @@ class _EvolutionArrow extends StatelessWidget {
                 color: theme.colorScheme.onSurface,
                 fontWeight: FontWeight.w500,
               ),
-              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],

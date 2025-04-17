@@ -10,59 +10,46 @@ import 'package:pokedex/views/pokemon_details.dart';
 class HeldItemsWidget extends StatelessWidget {
   final List<PokemonHeldItem> heldItems;
   final PokemonDetailsViewModel viewModel;
-  final PokemonTypeTheme theme;
+  final PokemonTypeTheme typeTheme;
 
   const HeldItemsWidget(
     this.heldItems,
     this.viewModel,
-    this.theme, {
+    this.typeTheme, {
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     // If no held items, don't show the section
     if (heldItems.isEmpty) {
       return const SizedBox.shrink();
     }
 
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Card(
-        elevation: 2,
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Header
-            Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: theme.secondary,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(12),
-                  topRight: Radius.circular(12),
+            Row(
+              children: [
+                Icon(Icons.shopping_bag_outlined, color: typeTheme.primary),
+                const SizedBox(width: 8),
+                Text(
+                  'Held Items',
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    color: typeTheme.primary,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.shopping_bag_outlined,
-                    color: theme.primary,
-                    size: 24,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Held Items',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: theme.primary,
-                    ),
-                  ),
-                ],
-              ),
+              ],
             ),
+            const Divider(height: 24),
             // Content
             Padding(
               padding: const EdgeInsets.all(16.0),
@@ -106,7 +93,9 @@ class HeldItemsWidget extends StatelessWidget {
                               width: 36,
                               height: 36,
                               decoration: BoxDecoration(
-                                color: theme.secondary.withValues(alpha: 0.3),
+                                color: typeTheme.secondary.withValues(
+                                  alpha: 0.3,
+                                ),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: CachedNetworkImage(
@@ -137,7 +126,7 @@ class HeldItemsWidget extends StatelessWidget {
                             IconButton(
                               icon: Icon(
                                 Icons.info_outline,
-                                color: theme.primary,
+                                color: typeTheme.primary,
                                 size: 20,
                               ),
                               onPressed: () {
@@ -150,7 +139,7 @@ class HeldItemsWidget extends StatelessWidget {
                                               .capitalize()
                                               .replaceAll('-', ' '),
                                           style: TextStyle(
-                                            color: theme.primary,
+                                            color: typeTheme.primary,
                                           ),
                                         ),
                                         content: Text(
@@ -170,7 +159,7 @@ class HeldItemsWidget extends StatelessWidget {
                                             child: Text(
                                               'Close',
                                               style: TextStyle(
-                                                color: theme.primary,
+                                                color: typeTheme.primary,
                                               ),
                                             ),
                                             onPressed:
@@ -208,7 +197,7 @@ class HeldItemsWidget extends StatelessWidget {
                                         vertical: 2,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: theme.secondary.withValues(
+                                        color: typeTheme.secondary.withValues(
                                           alpha: 0.5,
                                         ),
                                         borderRadius: BorderRadius.circular(12),
@@ -218,7 +207,7 @@ class HeldItemsWidget extends StatelessWidget {
                                         style: TextStyle(
                                           fontSize: 12,
                                           fontWeight: FontWeight.w500,
-                                          color: theme.primary,
+                                          color: typeTheme.primary,
                                         ),
                                       ),
                                     ),
@@ -239,7 +228,7 @@ class HeldItemsWidget extends StatelessWidget {
 
                   // Divider between items
                   if (heldItem != heldItems.last)
-                    Divider(color: theme.secondary.withValues(alpha: 0.3)),
+                    Divider(color: typeTheme.secondary.withValues(alpha: 0.3)),
                 ],
               ),
             );

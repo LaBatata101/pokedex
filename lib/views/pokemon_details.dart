@@ -313,9 +313,11 @@ class PokemonDetails extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 8),
-                Text(
-                  pokemon.formattedName,
-                  style: TextStyle(color: theme.text),
+                Expanded(
+                  child: Text(
+                    pokemon.formattedName,
+                    style: TextStyle(color: theme.text),
+                  ),
                 ),
               ],
             ),
