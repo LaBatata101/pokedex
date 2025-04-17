@@ -22,7 +22,7 @@ class HomeViewModel extends ChangeNotifier {
   int _currentPage = 0;
   bool isLoading = false;
   bool _isDisposed = false;
-  String errorMsg = '';
+  String? errorMsg;
 
   List<Type> selectedTypes = [];
   List<Generation> selectedGenerations = [];
@@ -50,7 +50,7 @@ class HomeViewModel extends ChangeNotifier {
     if (isLoading) return;
 
     isLoading = true;
-    errorMsg = '';
+    errorMsg = null;
     _basePokemonList = [];
     _currentFilteredList = [];
 
@@ -64,7 +64,7 @@ class HomeViewModel extends ChangeNotifier {
       _updateDisplayedPokemonPage();
     } catch (e, s) {
       logger.e("Error initializing Pokémon data", error: e, stackTrace: s);
-      if (!_isDisposed) errorMsg = 'Error initializing Pokémon data: $e';
+      if (!_isDisposed) errorMsg = 'Error fetching pokémons data: $e';
     } finally {
       if (!_isDisposed) {
         isLoading = false;

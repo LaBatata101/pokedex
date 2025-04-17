@@ -338,6 +338,53 @@ class _PokedexHomeState extends State<PokedexHome> {
     );
   }
 
+  Widget _buildErrorMsg(HomeViewModel viewModel) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.error_outline, size: 80, color: Colors.red[300]),
+            const SizedBox(height: 24),
+            Text(
+              'Something went wrong!',
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Colors.red,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              viewModel.errorMsg!,
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+            ),
+            const SizedBox(height: 32),
+            ElevatedButton.icon(
+              onPressed: () => viewModel.init(),
+              icon: const Icon(Icons.refresh),
+              label: const Text('Try Again'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
+                textStyle: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -384,6 +431,10 @@ class _PokedexHomeState extends State<PokedexHome> {
                   ],
                 ),
               );
+            }
+
+            if (viewModel.errorMsg != null) {
+              return _buildErrorMsg(viewModel);
             }
 
             return RefreshIndicator(
@@ -627,7 +678,7 @@ class _PokemonGridItemState extends State<PokemonGridItem> {
         placeholderBuilder:
             (_) => const Center(child: PokeballProgressIndicator()),
         errorBuilder:
-            (_, __, ___) => const PokemonErrorCard(
+            (_, _, _) => const PokemonErrorCard(
               message: 'Image not available',
               compact: true,
             ),
@@ -636,10 +687,9 @@ class _PokemonGridItemState extends State<PokemonGridItem> {
       return CachedNetworkImage(
         imageUrl: imageUrl,
         fit: BoxFit.contain,
-        placeholder:
-            (_, __) => const Center(child: PokeballProgressIndicator()),
+        placeholder: (_, _) => const Center(child: PokeballProgressIndicator()),
         errorWidget:
-            (_, __, ___) => const PokemonErrorCard(
+            (_, _, _) => const PokemonErrorCard(
               message: 'Image not available',
               compact: true,
             ),
@@ -660,7 +710,16 @@ class _PokemonGridItemState extends State<PokemonGridItem> {
             error: snapshot.error,
             stackTrace: snapshot.stackTrace,
           );
-          return PokemonErrorCard(message: 'Error: ${snapshot.error}');
+          return PokemonErrorCard(
+            message: 'Error loading pokémon',
+            onRetry: () {
+              logger.i("Retrying loading pokémon: ${widget.resource.url}");
+              setState(() {
+                _pokemonFuture = widget.viewModel.repository
+                    .getPokemonDetailsByUrl(widget.resource.url);
+              });
+            },
+          );
         }
         return const PokemonLoadingCard();
       },
@@ -702,11 +761,13 @@ class PokemonLoadingCard extends StatelessWidget {
 class PokemonErrorCard extends StatelessWidget {
   final String message;
   final bool compact;
+  final Function()? onRetry;
 
   const PokemonErrorCard({
     super.key,
     this.message = "Failed to load Pokémon!",
     this.compact = false,
+    this.onRetry,
   });
 
   @override
@@ -744,9 +805,7 @@ class PokemonErrorCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 ElevatedButton(
-                  onPressed: () {
-                    // TODO: Notify view model to retry loading this pokemon
-                  },
+                  onPressed: onRetry,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red,
                     foregroundColor: Colors.white,
