@@ -113,10 +113,10 @@ class HeldItemsWidget extends StatelessWidget {
                             const SizedBox(width: 10),
                             Expanded(
                               child: Text(
-                                heldItem.item.name.capitalize().replaceAll(
-                                  '-',
-                                  ' ',
-                                ),
+                                heldItem.item.name
+                                    .split('-')
+                                    .map((word) => word.capitalize())
+                                    .join(' '),
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
@@ -136,8 +136,9 @@ class HeldItemsWidget extends StatelessWidget {
                                       (context) => AlertDialog(
                                         title: Text(
                                           heldItem.item.name
-                                              .capitalize()
-                                              .replaceAll('-', ' '),
+                                              .split('-')
+                                              .map((word) => word.capitalize())
+                                              .join(' '),
                                           style: TextStyle(
                                             color: typeTheme.primary,
                                           ),
@@ -152,7 +153,8 @@ class HeldItemsWidget extends StatelessWidget {
                                                   .toList()
                                                 ..shuffle())
                                               .first
-                                              .text,
+                                              .text
+                                              .replaceAll('\n', ' '),
                                         ),
                                         actions: [
                                           TextButton(
