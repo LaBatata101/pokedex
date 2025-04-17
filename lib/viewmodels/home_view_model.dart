@@ -265,7 +265,7 @@ class HomeViewModel extends ChangeNotifier {
 
   void _updateDisplayedPokemonPage() {
     final startIndex = _currentPage * pageSize;
-    if (startIndex < _currentFilteredList.length) {
+    if (startIndex <= _currentFilteredList.length) {
       displayedPokemon =
           _currentFilteredList.skip(startIndex).take(pageSize).toList();
     }
