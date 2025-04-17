@@ -131,8 +131,7 @@ class PokemonDetailsViewModel extends ChangeNotifier {
     logger.d("Fetching Pokémon evolution chain data!");
     while (queue.isNotEmpty) {
       final currentLink = queue.removeLast();
-      if (!visiteUrls.contains(currentLink.species.url)) {
-        visiteUrls.add(currentLink.species.url);
+      if (visiteUrls.add(currentLink.species.url)) {
         try {
           if (_species!.name == currentLink.species.name) {
             result.add(pokemon);

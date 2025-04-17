@@ -48,9 +48,9 @@ class EvolutionChainWidget extends StatelessWidget {
   // Helper to find Pokemon detail by species name
   Pokemon? _findPokemonDetail(String speciesName) {
     try {
-      return viewModel.pokemonEvolutionDetails.firstWhere(
-        (p) => p.name.toLowerCase() == speciesName.toLowerCase(),
-      );
+      return viewModel.pokemonEvolutionDetails.firstWhere((p) {
+        return p.name.contains(speciesName);
+      });
     } catch (e) {
       return null;
     }
