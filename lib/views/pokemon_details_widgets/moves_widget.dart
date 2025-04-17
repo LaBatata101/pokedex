@@ -282,6 +282,7 @@ class _AllMovesExpansionTileState extends State<AllMovesExpansionTile> {
                   '${widget.moves.length}',
                   style: TextStyle(
                     color: primaryColor,
+                    fontSize: 12,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
