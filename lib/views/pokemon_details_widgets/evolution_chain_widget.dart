@@ -3,9 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:pokedex/custom/progress_indicator.dart';
 import 'package:pokedex/pokeapi/entities/evolution.dart';
 import 'package:pokedex/pokeapi/entities/pokemon.dart';
+import 'package:pokedex/repositories/pokemon_repository.dart';
+import 'package:pokedex/utils/logging.dart';
 import 'package:pokedex/utils/string.dart';
 import 'package:pokedex/viewmodels/pokemon_details_viewmodel.dart';
 import 'package:pokedex/views/pokemon_details.dart';
+import 'package:provider/provider.dart';
 
 enum ConditionType {
   level,
@@ -72,6 +75,7 @@ class EvolutionChainWidget extends StatelessWidget {
       branches.add([
         _EvolutionStageWidget(
           pokemon: basePokemon,
+          viewModel: viewModel,
           onTap: () => _navigateToPokemonDetails(context, basePokemon),
         ),
       ]);
@@ -101,6 +105,7 @@ class EvolutionChainWidget extends StatelessWidget {
         branch.add(
           _EvolutionStageWidget(
             pokemon: basePokemon,
+            viewModel: viewModel,
             onTap: () => _navigateToPokemonDetails(context, basePokemon),
             heldItemName: baseHeldItemName,
           ),
@@ -159,6 +164,7 @@ class EvolutionChainWidget extends StatelessWidget {
     branch.add(
       _EvolutionStageWidget(
         pokemon: currentPokemon,
+        viewModel: viewModel,
         onTap: () => _navigateToPokemonDetails(context, currentPokemon),
         heldItemName: nextHeldItemName,
       ),
@@ -275,12 +281,14 @@ class EvolutionChainWidget extends StatelessWidget {
 
 class _EvolutionStageWidget extends StatelessWidget {
   final Pokemon pokemon;
+  final PokemonDetailsViewModel viewModel;
   final VoidCallback onTap;
   final String? heldItemName;
 
   const _EvolutionStageWidget({
     required this.pokemon,
     required this.onTap,
+    required this.viewModel,
     this.heldItemName,
   });
 
@@ -420,40 +428,125 @@ class _EvolutionStageWidget extends StatelessWidget {
                 child: Tooltip(
                   message:
                       'Must hold ${heldItemName!.split('-').map((word) => word.capitalize()).join(' ')}',
-                  child: Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      color: Colors.blueAccent,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.2),
-                          blurRadius: 3,
-                          offset: const Offset(0, 1),
-                        ),
-                      ],
-                    ),
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        CachedNetworkImage(
-                          imageUrl: _getItemUrl(heldItemName!),
-                          placeholder:
-                              (context, url) => const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: PokeballProgressIndicator(),
+                  child: InkWell(
+                    onTap: () {
+                      final repository = context.read<PokemonRepository>();
+                      showDialog(
+                        context: context,
+                        builder:
+                            (context) => AlertDialog(
+                              title: Text(
+                                heldItemName!
+                                    .split('-')
+                                    .map((word) => word.capitalize())
+                                    .join(' '),
+                                style: TextStyle(color: primaryColor),
                               ),
-                          errorWidget:
-                              (context, url, error) => const Icon(
-                                Icons.inventory,
-                                color: Colors.white,
-                                size: 16,
+                              content: FutureBuilder(
+                                future: repository.getItemByName(heldItemName!),
+                                builder: (context, snapshot) {
+                                  if (snapshot.hasData) {
+                                    final item = snapshot.data!;
+                                    return Text(
+                                      (item.flavorTextEntries
+                                              .where(
+                                                (flavor) =>
+                                                    flavor.language.name ==
+                                                    'en',
+                                              )
+                                              .toList()
+                                            ..shuffle())
+                                          .first
+                                          .text
+                                          .replaceAll('\n', ' '),
+                                    );
+                                  } else if (snapshot.hasError) {
+                                    logger.e(
+                                      "Error loading item info!",
+                                      error: snapshot.error,
+                                      stackTrace: snapshot.stackTrace,
+                                    );
+                                    return Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(
+                                          Icons.error_outline,
+                                          color: Colors.red[400],
+                                          size: 48,
+                                        ),
+                                        const SizedBox(height: 16),
+                                        Text(
+                                          "Could not load item information",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 15,
+                                            color: Colors.red[700],
+                                          ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          "There was a problem fetching data for this item. Please try again later.",
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            color: Colors.grey[700],
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  }
+                                  return PokeballProgressIndicator(
+                                    color: primaryColor,
+                                    size: 35,
+                                  );
+                                },
                               ),
-                          width: 20,
-                          height: 20,
-                        ),
-                      ],
+                              actions: [
+                                TextButton(
+                                  child: Text(
+                                    'Close',
+                                    style: TextStyle(color: primaryColor),
+                                  ),
+                                  onPressed: () => Navigator.of(context).pop(),
+                                ),
+                              ],
+                            ),
+                      );
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: Colors.blueAccent,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.2),
+                            blurRadius: 3,
+                            offset: const Offset(0, 1),
+                          ),
+                        ],
+                      ),
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          CachedNetworkImage(
+                            imageUrl: _getItemUrl(heldItemName!),
+                            placeholder:
+                                (context, url) => const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: PokeballProgressIndicator(),
+                                ),
+                            errorWidget:
+                                (context, url, error) => const Icon(
+                                  Icons.inventory,
+                                  color: Colors.white,
+                                  size: 16,
+                                ),
+                            width: 20,
+                            height: 20,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),

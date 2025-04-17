@@ -14,6 +14,7 @@ abstract class PokemonRepository {
   Future<Move> getMoveByUrl(String url);
   Future<Ability> getAbilityByUrl(String url);
   Future<Type> getTypeByUrl(String url);
+  Future<Item> getItemByName(String name);
   Future<Item> getItemByUrl(String url);
   Future<Generation> getGenerationByUrl(String url);
   Future<NamedAPIResourceList> getAllTypes();
