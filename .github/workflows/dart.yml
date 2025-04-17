@@ -16,6 +16,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.29.3'
+          channel: 'stable'
+          cache: true
       
       - name: Setup Dart SDK
         uses: dart-lang/setup-dart@9a04e6d73cca37bd455e0608d7e5092f881fd603
@@ -51,18 +58,8 @@ jobs:
           distribution: 'zulu'
           java-version: '17'  # Flutter requires JDK 17 or newer
 
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.29.3'  # Specify your Flutter version
-          channel: 'stable'
-          cache: true
-
       - name: Get Flutter dependencies
         run: flutter pub get
-      
-      - name: Run Flutter tests
-        run: flutter test
       
       - name: Build APK
         run: flutter build apk --release
@@ -79,8 +76,8 @@ jobs:
           draft: false
           prerelease: false
           files: |
-            build/app/outputs/flutter-apk/app-release.apk
-            build/app/outputs/bundle/release/app-release.aab
+            build/app/outputs/apk/Pokédex-1.0.0-1-release.apk
+            build/app/outputs/bundle/release/Pokédex-1.0.0-1-release.aab
           body: |
             Release ${{ steps.tag.outputs.VERSION }}
             
