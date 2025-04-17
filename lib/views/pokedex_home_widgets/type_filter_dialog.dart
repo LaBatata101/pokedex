@@ -168,7 +168,7 @@ class _TypeFilterDialogState extends State<TypeFilterDialog>
       builder: (_, viewModel, _) {
         return AlertDialog(
           title: const Text(
-            'Filter Pokémon',
+            'Filter Pokémon By',
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
           content: SizedBox(
@@ -181,10 +181,7 @@ class _TypeFilterDialogState extends State<TypeFilterDialog>
                   labelColor: Colors.red,
                   unselectedLabelColor: Colors.black54,
                   indicatorColor: Colors.red,
-                  tabs: const [
-                    Tab(text: 'By Type'),
-                    Tab(text: 'By Generation'),
-                  ],
+                  tabs: const [Tab(text: 'Type'), Tab(text: 'Generation')],
                 ),
 
                 // Selected count indicators
