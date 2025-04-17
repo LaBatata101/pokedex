@@ -3,10 +3,9 @@ import 'package:path/path.dart';
 
 class PokeAPICache {
   static const _tableName = 'PokeApiCache';
-  final String _path;
   final Database _db;
 
-  PokeAPICache._(this._path, this._db);
+  PokeAPICache._(this._db);
 
   static Future<PokeAPICache> init() async {
     final dbPath = join(await getDatabasesPath(), "pokeapi_cache.db");
@@ -20,7 +19,7 @@ class PokeAPICache {
       },
     );
 
-    return PokeAPICache._(dbPath, db);
+    return PokeAPICache._(db);
   }
 
   Future<void> insert(String url, String value) async {
