@@ -82,6 +82,6 @@ abstract class BasePokeAPIEndpoints {
     required this.ability,
     required this.type,
     required this.item,
-    required this.generation
+    required this.generation,
   });
 }
