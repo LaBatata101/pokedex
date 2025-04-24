@@ -35,6 +35,7 @@ The built APK will be in `build/app/outputs/apk/release/Pokédex-1.0.0-1-release
     - Particle effect and badge for Legendary and Mythical Pokémon.
 - **Performance:**
     - Uses local cache (SQLite) for API data, improving performance and reducing repeated requests.
+    - Uses `cached_network_image` for caching images.
     - Paginated loading of lists (Pokémon, Moves, etc.).
 
 ## Screenshots
